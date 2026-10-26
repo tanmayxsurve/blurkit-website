@@ -511,138 +511,256 @@ export default function Home() {
       <LogoStrip />
 
       {/* Features Section */}
-      <section className="bg-white px-4 py-20 md:py-24" id="features">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Powerful <span className="text-blue-600">Privacy</span> Features
-            </h2>
-            <p className="text-lg text-gray-600">
-              Everything you need to share your screen safely
-            </p>
-          </div>
+      <section className="bg-[#f3f5f9] px-4 py-24" id="features">
+        <style dangerouslySetInnerHTML={{ __html: `
+          .features-container { max-width: 1120px; margin: 0 auto; }
+          .sec-head { text-align: center; margin-bottom: 56px; }
+          .eyebrow {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 600; color: #316bf4;
+            margin-bottom: 16px;
+          }
+          .eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #316bf4; }
+          .sec-head h2 {
+            font-size: 52px; font-weight: 800; line-height: 1.08; letter-spacing: -1.5px; color: #0f172a;
+          }
+          .sec-head h2 span { color: #316bf4; }
+          .sec-head p { margin-top: 18px; font-size: 17px; line-height: 1.6; color: #64748b; }
 
-          {/* PII Detection */}
-          <div className="mb-20">
-            <h3 className="text-3xl font-bold text-gray-900 mb-8">11 Types of PII Detection</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                'Email Addresses',
-                'Phone Numbers',
-                'Credit Card Numbers',
-                'Social Security Numbers',
-                'Passwords & API Keys',
-                'Cryptocurrency Wallets',
-                'Bank Account Numbers',
-                'Dates & Timestamps',
-                'Mailing Addresses',
-                'Dollar Amounts',
-                'Custom Keywords'
-              ].map((pii) => (
-                <div key={pii} className="bg-gray-50 rounded-lg border border-gray-200 p-6 hover:border-blue-300 transition-colors">
-                  <div className="text-3xl mb-3">🔍</div>
-                  <h4 className="text-lg font-bold text-gray-900 mb-2">{pii}</h4>
-                  <p className="text-gray-600 text-sm">
-                    Automatically detected and blurred to protect your privacy
+          .bento-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-areas: "a b" "a c";
+            gap: 20px;
+          }
+          .bento-1 { grid-area: a; } .bento-2 { grid-area: b; } .bento-3 { grid-area: c; }
+
+          .bento-card {
+            background: #ffffff;
+            border: 1px solid #e8ebf3;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            transition: transform .25s ease, box-shadow .25s ease;
+          }
+          .bento-card:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08); }
+
+          .demo-area { flex: 1; padding: 30px; display: flex; flex-direction: column; gap: 28px; justify-content: center; }
+          .meta-area { border-top: 1px solid #e8ebf3; padding: 20px 26px 24px; background: #fbfcfe; }
+          .meta-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+          .card-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: #316bf4; }
+          .meta-right { display: flex; align-items: center; gap: 10px; color: #94a3b8; }
+          .meta-right svg { width: 18px; height: 18px; }
+          .meta-area h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; margin-bottom: 6px; color: #0f172a; }
+          .meta-area p { font-size: 14px; line-height: 1.55; color: #64748b; }
+
+          .feat-tag {
+            display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600;
+            letter-spacing: 0.8px; text-transform: uppercase;
+            padding: 4px 9px; border-radius: 6px;
+            background: #eaf0ff; color: #2556d9;
+          }
+          .feat-tag.off { background: transparent; color: #94a3b8; border: 1px solid #e8ebf3; }
+          .feat-tag.pro { background: #0f172a; color: #fff; letter-spacing: 1px; }
+          .feat-tag.on { background: #316bf4; color: #fff; }
+
+          .blur-text { display: inline-block; filter: blur(5px); user-select: none; pointer-events: none; }
+
+          .demo-name { font-size: 24px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 12px; color: #0f172a; }
+          .demo-field {
+            border: 1.5px solid #316bf4; border-radius: 10px; padding: 11px 14px;
+            font-family: 'JetBrains Mono', monospace; font-size: 14px; background: #fff;
+            box-shadow: 0 0 0 4px rgba(49, 107, 244, 0.1);
+          }
+          .demo-area-box {
+            position: relative; border: 1.5px dashed #316bf4; border-radius: 12px;
+            background: rgba(49, 107, 244, 0.05); padding: 18px 20px;
+            font-family: 'JetBrains Mono', monospace; font-size: 15px; line-height: 1.8; max-width: 270px;
+          }
+          .cursor-icon { position: absolute; right: -18px; bottom: -16px; width: 26px; height: 26px; filter: drop-shadow(0 2px 3px rgba(15,23,42,.25)); }
+          .demo-sentence { font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 2; color: #334155; }
+          .highlight-text { background: #eaf0ff; border-radius: 5px; padding: 2px 4px; }
+
+          .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+          .demo-sample { font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 2; color: #334155; }
+          .demo-sample em { font-style: normal; color: #94a3b8; }
+
+          .regex-input {
+            display: flex; align-items: center; gap: 2px;
+            font-family: 'JetBrains Mono', monospace; font-size: 26px; font-weight: 500; letter-spacing: -0.5px;
+            border: 1.5px solid #e8ebf3; border-radius: 12px; padding: 14px 18px; background: #fff;
+          }
+          .typing-caret { width: 2px; height: 28px; background: #316bf4; margin-left: 4px; animation: blink 1.1s steps(1) infinite; }
+          @keyframes blink { 50% { opacity: 0; } }
+          .match-list { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+          .match-item { background: #eaf0ff; border-radius: 6px; padding: 5px 9px; }
+
+          @media (max-width: 860px) {
+            .sec-head h2 { font-size: 36px; }
+            .bento-grid { grid-template-columns: 1fr; grid-template-areas: "a" "b" "c"; }
+            .demo-area { padding: 24px; }
+            .regex-input { font-size: 20px; }
+          }
+        ` }} />
+
+        <div className="features-container">
+          <header className="sec-head">
+            <div className="eyebrow">What&apos;s inside</div>
+            <h2>
+              Three ways to hide
+              <br />
+              <span>exactly what you mean to.</span>
+            </h2>
+            <p>From one-off clicks to rules that run on every page you open.</p>
+          </header>
+
+          <div className="bento-grid">
+            {/* Card 1: Manual blur */}
+            <article className="bento-card bento-1">
+              <div className="demo-area">
+                <div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <span className="feat-tag">Element</span>
+                  </div>
+                  <div className="demo-name">Ben Affleck</div>
+                  <div className="demo-field">
+                    <span className="blur-text">ben@acme.com</span>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <span className="feat-tag">Area</span>
+                  </div>
+                  <div className="demo-area-box">
+                    <span className="blur-text">•••• 4242</span>
+                    <br />
+                    <span className="blur-text">$ 12,400</span>
+                    <svg className="cursor-icon" viewBox="0 0 24 24">
+                      <path
+                        d="M5 3l14 8-6 2 4 7-3 1.5-4-7-5 4z"
+                        fill="#0f172a"
+                        stroke="#fff"
+                        strokeWidth="1.4"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <span className="feat-tag">Words</span>
+                  </div>
+                  <p className="demo-sentence">
+                    Wire{" "}
+                    <span className="highlight-text">
+                      <span className="blur-text">$ 12,400</span>
+                    </span>{" "}
+                    to{" "}
+                    <span className="highlight-text">
+                      <span className="blur-text">Acme Corp</span>
+                    </span>
+                    , ref{" "}
+                    <span className="highlight-text">
+                      <span className="blur-text">INV-2214</span>
+                    </span>
+                    , before Friday.
                   </p>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Blur Styles */}
-          <div className="mb-20">
-            <h3 className="text-3xl font-bold text-gray-900 mb-8">3 Blur Styles</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { name: 'Blur', desc: 'Smooth blur effect - looks natural and professional', icon: '🫨' },
-                { name: 'Redact', desc: 'Black rectangle - completely blocks the sensitive data', icon: '⬛' },
-                { name: 'Hide', desc: 'Completely hidden - removes the content entirely', icon: '👻' },
-              ].map((style) => (
-                <div key={style.name} className="bg-gray-50 rounded-lg border border-gray-200 p-8 text-center hover:border-blue-300 transition-colors">
-                  <div className="text-5xl mb-4">{style.icon}</div>
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">{style.name}</h4>
-                  <p className="text-gray-600">{style.desc}</p>
+              </div>
+              <div className="meta-area">
+                <div className="meta-top">
+                  <span className="card-num">01</span>
+                  <span className="meta-right">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 3l14 8-6 2 4 7-3 1.5-4-7-5 4z" />
+                    </svg>
+                  </span>
                 </div>
-              ))}
-            </div>
-          </div>
+                <h3>Manual blur: elements, areas &amp; words</h3>
+                <p>
+                  Click an element, drag a region, or pick specific words. Surgical
+                  control when you need it.
+                </p>
+              </div>
+            </article>
 
-          {/* Demo Mode */}
-          <div className="bg-blue-50 rounded-lg border border-blue-200 p-12 mb-20">
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">✨ Demo Mode</h3>
-            <p className="text-gray-700 text-lg mb-6">
-              One-click full-page blur with a single keyboard shortcut. Perfect for presentations, demos, and screenshots where you want to show real websites without exposing sensitive data.
-            </p>
-            <div className="bg-white rounded-lg p-6 border border-blue-200">
-              <p className="text-gray-600 text-sm mb-2">Keyboard Shortcut:</p>
-              <code className="text-blue-600 font-mono text-lg">Alt + Shift + D</code>
-            </div>
-          </div>
-
-          {/* Keyboard Shortcuts */}
-          <div className="mb-20">
-            <h3 className="text-3xl font-bold text-gray-900 mb-8">Keyboard Shortcuts</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                { keys: 'Alt + Shift + D', action: 'Toggle Demo Mode (blur everything)' },
-                { keys: 'Alt + Shift + A', action: 'Toggle Auto-Detection' },
-                { keys: 'Alt + Shift + R', action: 'Remove all blurs' },
-                { keys: 'Alt + Shift + T', action: 'Toggle toolbar' },
-                { keys: 'Alt + Shift + B', action: 'Blur selected text' },
-                { keys: 'Right-click', action: 'Blur selected text (context menu)' },
-              ].map((shortcut) => (
-                <div key={shortcut.keys} className="bg-gray-50 rounded-lg border border-gray-200 p-6">
-                  <code className="text-blue-600 font-mono text-sm block mb-2">{shortcut.keys}</code>
-                  <p className="text-gray-600">{shortcut.action}</p>
+            {/* Card 2: Auto blur */}
+            <article className="bento-card bento-2">
+              <div className="demo-area">
+                <div className="chip-group">
+                  <span className="feat-tag on">Emails</span>
+                  <span className="feat-tag on">Phones</span>
+                  <span className="feat-tag on">Keys</span>
+                  <span className="feat-tag off">Cards</span>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Privacy & Performance */}
-          <div>
-            <h3 className="text-3xl font-bold text-gray-900 mb-8">Privacy & Performance</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                {
-                  icon: '🔒',
-                  title: '100% Local Processing',
-                  desc: 'All analysis happens in your browser. No data ever leaves your computer.',
-                },
-                {
-                  icon: '🚫',
-                  title: 'Zero Data Collection',
-                  desc: 'We don\'t collect, store, or analyze any of your personal information.',
-                },
-                {
-                  icon: '⚡',
-                  title: 'Lightning Fast',
-                  desc: 'Real-time detection with minimal CPU and memory overhead.',
-                },
-                {
-                  icon: '🔄',
-                  title: 'Works Everywhere',
-                  desc: 'Detects and blurs data on every website you visit automatically.',
-                },
-                {
-                  icon: '📱',
-                  title: 'Tab Protection',
-                  desc: 'Blur browser tab titles to keep your privacy even in screenshots.',
-                },
-                {
-                  icon: '🎯',
-                  title: 'Smart Detection',
-                  desc: 'Advanced patterns catch real-world PII formats with minimal false positives.',
-                },
-              ].map((item) => (
-                <div key={item.title} className="bg-gray-50 rounded-lg border border-gray-200 p-6 hover:border-blue-300 transition-colors">
-                  <div className="text-4xl mb-3">{item.icon}</div>
-                  <h4 className="text-lg font-bold text-gray-900 mb-2">{item.title}</h4>
-                  <p className="text-gray-600">{item.desc}</p>
+                <div className="demo-sample">
+                  From <span className="blur-text">jane@acme.com</span>
+                  <br />
+                  Call <span className="blur-text">+1 415 555 0142</span>
+                  <br />
+                  <span className="blur-text">sk_live_4eC39HqL</span> <em>|</em> Card ••••
+                  4242
                 </div>
-              ))}
-            </div>
+              </div>
+              <div className="meta-area">
+                <div className="meta-top">
+                  <span className="card-num">02</span>
+                  <span className="meta-right">
+                    <span className="feat-tag pro">Pro</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3M9 12h6" />
+                    </svg>
+                  </span>
+                </div>
+                <h3>Auto-blur by category</h3>
+                <p>
+                  Toggle emails, phones, cards, secret keys, IBANs and crypto
+                  wallets. Masked across the page automatically.
+                </p>
+              </div>
+            </article>
+
+            {/* Card 3: Regex */}
+            <article className="bento-card bento-3">
+              <div className="demo-area">
+                <div style={{ margin: 0, marginBottom: '12px' }}>
+                  <span className="feat-tag">Regex</span>
+                </div>
+                <div className="regex-input">
+                  /[A-Z]{'{2,}'}-\d+/<span className="typing-caret"></span>
+                </div>
+                <div className="match-list">
+                  <span className="match-item">
+                    <span className="blur-text">ENG-1422</span>
+                  </span>
+                  <span className="match-item">
+                    <span className="blur-text">OPS-318</span>
+                  </span>
+                  <span className="match-item">
+                    <span className="blur-text">FIN-0814</span>
+                  </span>
+                  <span style={{ color: '#94a3b8' }}>+39</span>
+                </div>
+              </div>
+              <div className="meta-area">
+                <div className="meta-top">
+                  <span className="card-num">03</span>
+                  <span className="meta-right">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 5h18l-7 8v6l-4-2v-4z" />
+                    </svg>
+                  </span>
+                </div>
+                <h3>Blur list with regex</h3>
+                <p>
+                  Comma-separated words or regex. If it matches, it&apos;s hidden.
+                  Everywhere. Three terms free, unlimited with Pro.
+                </p>
+              </div>
+            </article>
           </div>
         </div>
       </section>

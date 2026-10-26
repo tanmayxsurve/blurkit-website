@@ -8,7 +8,7 @@ export function Header() {
     <header className="w-full py-3 px-4 md:px-6 bg-white">
       <div className="flex justify-center w-full">
         <nav
-          className="flex items-center gap-5 px-6 py-2.5 bg-[#343b66] rounded-full shadow-md whitespace-nowrap"
+          className="fixed top-3 left-1/2 transform -translate-x-1/2 z-50 flex items-center gap-5 px-6 py-2.5 bg-[#343b66] rounded-full shadow-md whitespace-nowrap"
           aria-label="Main navigation"
         >
           {/* Brand */}
