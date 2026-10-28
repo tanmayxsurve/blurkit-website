@@ -143,17 +143,31 @@ async function handleCheckout(request: Request, env: Env): Promise<Response> {
 async function handleWebhook(request: Request, env: Env): Promise<Response> {
   try {
     const body = await request.text()
-    console.log('Webhook received:', body)
+    console.log('=== WEBHOOK RECEIVED ===')
+    console.log('Raw body:', body)
 
     const payload = JSON.parse(body)
-    console.log('Webhook event type:', payload.type)
-    console.log('Webhook data status:', payload.data?.status)
+    console.log('Parsed payload type:', payload.type)
+    console.log('Full payload:', JSON.stringify(payload, null, 2))
 
-    // Only handle successful payments
-    if (payload.type !== 'checkout.completed' || payload.data?.status !== 'completed') {
-      console.log('Skipping webhook - not a completed checkout')
+    // Log data details
+    console.log('Data:', payload.data)
+    console.log('Data status:', payload.data?.status)
+    console.log('Data customer:', payload.data?.customer)
+    console.log('Data metadata:', payload.data?.metadata)
+    console.log('Data product_cart:', payload.data?.product_cart)
+
+    // Only handle successful payments - check multiple possible event names
+    const isPaymentSuccess =
+      (payload.type === 'checkout.completed' && payload.data?.status === 'completed') ||
+      (payload.type === 'payment.success') ||
+      (payload.type === 'checkout.paid') ||
+      (payload.event === 'checkout.completed' && payload.data?.status === 'completed')
+
+    if (!isPaymentSuccess) {
+      console.log('Skipping webhook - event type:', payload.type, 'status:', payload.data?.status)
       return new Response(
-        JSON.stringify({ success: true }),
+        JSON.stringify({ success: true, skipped: true, reason: 'Not a payment completion event' }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       )
     }
@@ -249,24 +263,56 @@ async function saveLicenseToDatabase(
     const client = new Client({ connectionString: databaseUrl })
     await client.connect()
 
-    await client.query(
-      `INSERT INTO licenses (email, license_key, plan_id, session_id, created_at)
-       VALUES ($1, $2, $3, $4, $5)
-       ON CONFLICT (license_key) DO NOTHING`,
-      [
-        licenseData.email,
-        licenseData.licenseKey,
-        licenseData.planId,
-        licenseData.sessionId,
-        licenseData.createdAt,
-      ]
+    // First, check table structure
+    const tableCheck = await client.query(
+      `SELECT column_name FROM information_schema.columns WHERE table_name = 'licenses'`
     )
+    console.log('Existing columns:', tableCheck.rows)
 
-    await client.end()
+    // Try insert with different column name variations
+    const insertQuery = `
+      INSERT INTO licenses (email, license_key, plan_id, session_id, created_at)
+      VALUES ($1, $2, $3, $4, $5)
+      ON CONFLICT (license_key) DO NOTHING
+    `
+
+    const result = await client.query(insertQuery, [
+      licenseData.email,
+      licenseData.licenseKey,
+      licenseData.planId,
+      licenseData.sessionId,
+      licenseData.createdAt,
+    ])
+
     console.log('License saved to database:', licenseData.licenseKey)
+    await client.end()
   } catch (error) {
-    console.error('Database save error:', error)
-    throw new Error(`Failed to save license: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    console.error('Database error details:', error)
+
+    // Try alternative table structure if first attempt fails
+    try {
+      const client = new Client({ connectionString: databaseUrl })
+      await client.connect()
+
+      // Alternative: try without ON CONFLICT if table doesn't have unique constraint
+      await client.query(
+        `INSERT INTO licenses (email, license_key, plan_id, session_id, created_at)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [
+          licenseData.email,
+          licenseData.licenseKey,
+          licenseData.planId,
+          licenseData.sessionId,
+          licenseData.createdAt,
+        ]
+      )
+
+      console.log('License saved (alternative method)')
+      await client.end()
+    } catch (fallbackError) {
+      console.error('Fallback error:', fallbackError)
+      throw new Error(`Failed to save license: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
   }
 }
 
