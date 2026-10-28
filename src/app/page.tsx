@@ -540,10 +540,8 @@ export default function Home() {
       setIsLoading(true)
       setError(null)
 
-      // Call Cloudflare Worker API instead of Pages API route
-      const workerUrl = process.env.NEXT_PUBLIC_PAYMENT_WORKER_URL || 'https://blurkit-payment-api.YOUR_SUBDOMAIN.workers.dev'
-
-      const response = await fetch(workerUrl, {
+      // Call Cloudflare Worker API
+      const response = await fetch('https://blurkit-payment-api.survextanmay.workers.dev', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ planId: 'pdt_0NqhQec3BvgM8158TvkbE' }),
