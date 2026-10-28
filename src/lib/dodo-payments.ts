@@ -26,30 +26,38 @@ export class DodoPayments {
     metadata?: Record<string, string>
   }): Promise<{ sessionId: string; checkoutUrl: string }> {
     try {
+      const payload = {
+        product_cart: [
+          {
+            product_id: params.planId,
+            quantity: 1
+          }
+        ],
+        customer: params.email ? {
+          email: params.email
+        } : undefined,
+        return_url: params.successUrl,
+        cancel_url: params.cancelUrl,
+        metadata: params.metadata,
+      }
+
       const response = await fetch(`${this.baseUrl}/checkouts`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.secretKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          product_cart: [
-            {
-              product_id: params.planId,
-              quantity: 1
-            }
-          ],
-          customer: params.email ? {
-            email: params.email
-          } : undefined,
-          return_url: params.successUrl,
-          cancel_url: params.cancelUrl,
-          metadata: params.metadata,
-        }),
+        body: JSON.stringify(payload),
       })
 
       if (!response.ok) {
-        const error = await response.json()
+        const errorText = await response.text()
+        let error
+        try {
+          error = JSON.parse(errorText)
+        } catch {
+          error = { message: errorText }
+        }
         throw new Error(error.message || 'Failed to create checkout session')
       }
 
@@ -60,7 +68,7 @@ export class DodoPayments {
         checkoutUrl: data.checkout_url,
       }
     } catch (error) {
-      console.error('Dodo Payments error:', error)
+      console.error('Dodo Payments error:', error instanceof Error ? error.message : 'Unknown error')
       throw error
     }
   }

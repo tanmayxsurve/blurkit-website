@@ -19,7 +19,11 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    // Get site URL from environment or request
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ||
+                    process.env.NEXT_PUBLIC_APP_URL ||
+                    req.headers.get('origin') ||
+                    'https://blurkit-website.pages.dev'
 
     const dodo = getDodoClient()
 
@@ -39,7 +43,7 @@ export async function POST(req: NextRequest) {
       sessionId: session.sessionId,
     })
   } catch (error) {
-    console.error('Checkout error:', error)
+    console.error('Checkout error:', error instanceof Error ? error.message : 'Unknown error')
 
     return NextResponse.json(
       {
