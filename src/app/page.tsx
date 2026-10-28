@@ -420,6 +420,115 @@ const heroStyles = `
       font-size: 32px;
     }
   }
+
+  /* FAQ Section Styles */
+  .faq-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 100px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    font-family: 'Inter', sans-serif;
+    color: #10142b;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (min-width: 768px) {
+    .faq-section {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 80px;
+    }
+  }
+
+  .faq-left {
+    flex: 1;
+    max-width: 320px;
+  }
+
+  .faq-title {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    color: #0f172a;
+    margin-bottom: 16px;
+  }
+
+  .faq-subtitle {
+    font-size: 16px;
+    color: #64748b;
+    line-height: 1.6;
+  }
+
+  .faq-subtitle a {
+    color: #2457e6;
+    text-decoration: none;
+  }
+
+  .faq-subtitle a:hover {
+    text-decoration: underline;
+  }
+
+  .faq-right {
+    flex: 2;
+    width: 100%;
+  }
+
+  .faq-item {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 24px 0;
+  }
+
+  .faq-item:first-child {
+    padding-top: 0;
+  }
+
+  .faq-item:last-child {
+    border-bottom: none;
+  }
+
+  .faq-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f172a;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+
+  .faq-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    color: #2457e6;
+    transition: transform 0.2s ease;
+  }
+
+  .faq-item[open] .faq-icon {
+    transform: rotate(45deg);
+  }
+
+  .faq-answer {
+    font-size: 15px;
+    color: #475569;
+    line-height: 1.6;
+    margin-top: 16px;
+    padding-right: 40px;
+    animation: fadeIn 0.2s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 `;
 
 export default function Home() {
@@ -492,7 +601,7 @@ export default function Home() {
           </a>
 
           <a href="#pricing" className="btn-secondary">
-            Buy now — $19.99 Lifetime
+            Buy now — $49 Lifetime
           </a>
         </div>
 
@@ -813,7 +922,7 @@ export default function Home() {
             <div className="pricing-right-title">Lifetime License</div>
 
             <div className="price-row">
-              <span className="price-main">$19.99</span>
+              <span className="price-main">$49</span>
               <span className="price-desc">one-time payment</span>
             </div>
 
@@ -847,7 +956,7 @@ export default function Home() {
               disabled={isLoading}
               className="buy-button-large"
             >
-              {isLoading ? 'Processing...' : 'Buy now — $19.99 Lifetime'}
+              {isLoading ? 'Processing...' : 'Buy now — $49 Lifetime'}
             </button>
 
             <div className="checkout-footer">
@@ -859,80 +968,78 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section className="bg-white px-4 py-20 md:py-24" id="faq">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-12 md:gap-20">
-            {/* Left Side */}
-            <div className="md:max-w-xs">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">Questions</h2>
-              <p className="text-gray-600">
-                Something else? Write to <a href={`mailto:${siteConfig.support}`} className="text-blue-600 hover:underline">{siteConfig.support}</a>.
-              </p>
-            </div>
+      <section className="bg-white" id="faq">
+        <div className="faq-section">
+          {/* Left Side */}
+          <div className="faq-left">
+            <h2 className="faq-title">Questions</h2>
+            <p className="faq-subtitle">
+              Something else? Write to <a href={`mailto:${siteConfig.support}`}>{siteConfig.support}</a>.
+            </p>
+          </div>
 
-            {/* Right Side */}
-            <div className="flex-1">
-              {[
-                {
-                  question: "How do I get my license key?",
-                  answer: "After payment, your license key will be sent to your email within seconds. Check your inbox and spam folder.",
-                  defaultOpen: true,
-                },
-                {
-                  question: "Does BlurKit record my screen?",
-                  answer: "No. BlurKit only detects and blurs sensitive information on web pages. It doesn't record, screenshot, or capture anything. All processing happens locally in your browser.",
-                },
-                {
-                  question: "Can I use the free version forever?",
-                  answer: "Yes! The free version includes basic PII detection and is completely free. Upgrade to Pro anytime if you want all features.",
-                },
-                {
-                  question: "Can I move my license to a new computer?",
-                  answer: "Yes, you can deactivate your old computer and activate the license on a new one at any time.",
-                },
-                {
-                  question: "Which browsers are supported?",
-                  answer: "BlurKit works on Chrome, Edge, Firefox, and Brave. Simply install the extension from your browser's store.",
-                },
-                {
-                  question: "Is there a refund policy?",
-                  answer: "Yes, we offer a 30-day money-back guarantee. If you're not satisfied, contact us for a full refund.",
-                },
-                {
-                  question: "Do you collect my data?",
-                  answer: "No. All processing happens locally in your browser. We never see, store, or collect your data. Only your email is stored for license management.",
-                },
-                {
-                  question: "Can I use Pro on multiple devices?",
-                  answer: "Yes, your license key works on any device where you have BlurKit installed.",
-                },
-              ].map((faq, index) => (
-                <details
-                  key={index}
-                  className="border-b border-gray-200 py-6 first:pt-0 last:border-b-0 group"
-                  open={faq.defaultOpen}
-                >
-                  <summary className="flex justify-between items-center font-semibold text-gray-900 cursor-pointer list-none select-none">
-                    {faq.question}
-                    <svg
-                      className="w-5 h-5 text-blue-600 transition-transform group-open:rotate-45"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <line x1="12" y1="5" x2="12" y2="19"></line>
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                  </summary>
-                  <div className="mt-4 text-gray-600 leading-relaxed pr-8">
-                    {faq.answer}
-                  </div>
-                </details>
-              ))}
-            </div>
+          {/* Right Side */}
+          <div className="faq-right">
+            {[
+              {
+                question: "How do I get my license key?",
+                answer: "After payment, your license key will be sent to your email within seconds. Check your inbox and spam folder.",
+                defaultOpen: true,
+              },
+              {
+                question: "Does BlurKit record my screen?",
+                answer: "No. BlurKit only detects and blurs sensitive information on web pages. It doesn't record, screenshot, or capture anything. All processing happens locally in your browser.",
+              },
+              {
+                question: "Can I use the free version forever?",
+                answer: "Yes! The free version includes basic PII detection and is completely free. Upgrade to Pro anytime if you want all features.",
+              },
+              {
+                question: "Can I move my license to a new computer?",
+                answer: "Yes, you can deactivate your old computer and activate the license on a new one at any time.",
+              },
+              {
+                question: "Which browsers are supported?",
+                answer: "BlurKit works on Chrome, Edge, Firefox, and Brave. Simply install the extension from your browser's store.",
+              },
+              {
+                question: "Is there a refund policy?",
+                answer: "Yes, we offer a 30-day money-back guarantee. If you're not satisfied, contact us for a full refund.",
+              },
+              {
+                question: "Do you collect my data?",
+                answer: "No. All processing happens locally in your browser. We never see, store, or collect your data. Only your email is stored for license management.",
+              },
+              {
+                question: "Can I use Pro on multiple devices?",
+                answer: "Yes, your license key works on any device where you have BlurKit installed.",
+              },
+            ].map((faq, index) => (
+              <details
+                key={index}
+                className="faq-item"
+                open={faq.defaultOpen}
+              >
+                <summary className="faq-summary">
+                  {faq.question}
+                  <svg
+                    className="faq-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                </summary>
+                <div className="faq-answer">
+                  {faq.answer}
+                </div>
+              </details>
+            ))}
           </div>
         </div>
       </section>
