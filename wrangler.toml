@@ -2,8 +2,5 @@ name = "blurkit-website"
 compatibility_date = "2024-01-01"
 pages_build_output_dir = ".vercel/output/static"
 
-[build]
-command = "npm run cf-build"
-
 [env.production]
 vars = { NODE_ENV = "production" }

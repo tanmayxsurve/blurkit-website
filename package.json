@@ -4,10 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "cf-build": "npx @cloudflare/next-on-pages",
+    "build": "npx @cloudflare/next-on-pages",
     "preview": "wrangler pages dev .vercel/output/static",
-    "deploy": "npm run cf-build && wrangler pages deploy",
+    "deploy": "npm run build && wrangler pages deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
     "start": "next start",
     "lint": "eslint",
