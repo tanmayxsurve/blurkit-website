@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { siteConfig } from '@/config/site.config'
+import { siteConfig } from '@/config/site.config.ts'
 
 const styles = `
   .footer {

@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { siteConfig } from '@/config/site.config'
+import { siteConfig } from '@/config/site.config.ts'
 
 function SuccessContent() {
   const searchParams = useSearchParams()

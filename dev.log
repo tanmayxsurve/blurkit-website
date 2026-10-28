@@ -1,0 +1,194 @@
+
+> blurkit-website@0.1.0 dev
+> next dev
+
+▲ Next.js 16.4.3 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.12:3000
+- Environments: .env
+✓ Ready in 536ms
+✓ Running next.config.ts took 118ms
+- Cache Components enabled
+- Partial Prefetching enabled
+- Experiments (use with caution):
+  · optimizePackageImports
+
+Dodo Payments error: TypeError: fetch failed
+    at async DodoPayments.createCheckoutSession (src/lib/dodo-payments.ts:26:24)
+    at async POST (src/app/api/payment/checkout/route.ts:24:21)
+  24 |   }): Promise<{ sessionId: string; checkoutUrl: string }> {
+  25 |     try {
+> 26 |       const response = await fetch(`${this.baseUrl}/checkout/sessions`, {
+     |                        ^
+  27 |         method: 'POST',
+  28 |         headers: {
+  29 |           'Authorization': `Bearer ${this.secretKey}`, {
+  [cause]: Error: getaddrinfo ENOTFOUND api.dodopayments.com
+      at ignore-listed frames {
+    errno: -3007,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'api.dodopayments.com'
+  }
+}
+Checkout error: TypeError: fetch failed
+    at async DodoPayments.createCheckoutSession (src/lib/dodo-payments.ts:26:24)
+    at async POST (src/app/api/payment/checkout/route.ts:24:21)
+  24 |   }): Promise<{ sessionId: string; checkoutUrl: string }> {
+  25 |     try {
+> 26 |       const response = await fetch(`${this.baseUrl}/checkout/sessions`, {
+     |                        ^
+  27 |         method: 'POST',
+  28 |         headers: {
+  29 |           'Authorization': `Bearer ${this.secretKey}`, {
+  [cause]: Error: getaddrinfo ENOTFOUND api.dodopayments.com
+      at ignore-listed frames {
+    errno: -3007,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'api.dodopayments.com'
+  }
+}
+ POST /api/payment/checkout 500 in 360ms (next.js: 89ms, application-code: 271ms)
+Dodo Payments error: SyntaxError: Unexpected token 'I', "Invalid bearer token" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at async DodoPayments.createCheckoutSession (src/lib/dodo-payments.ts:46:23)
+    at async POST (src/app/api/payment/checkout/route.ts:24:21)
+  44 |
+  45 |       if (!response.ok) {
+> 46 |         const error = await response.json()
+     |                       ^
+  47 |         throw new Error(error.message || 'Failed to create checkout session')
+  48 |       }
+  49 |
+Checkout error: SyntaxError: Unexpected token 'I', "Invalid bearer token" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at async DodoPayments.createCheckoutSession (src/lib/dodo-payments.ts:46:23)
+    at async POST (src/app/api/payment/checkout/route.ts:24:21)
+  44 |
+  45 |       if (!response.ok) {
+> 46 |         const error = await response.json()
+     |                       ^
+  47 |         throw new Error(error.message || 'Failed to create checkout session')
+  48 |       }
+  49 |
+ POST /api/payment/checkout 500 in 2.7s (next.js: 1.9ms, application-code: 2.7s)
+ POST /api/payment/checkout 200 in 3.6s (next.js: 1.5ms, application-code: 3.6s)
+ POST /api/payment/checkout 200 in 241ms (next.js: 0.8ms, application-code: 240ms)
+⨯ The directory at "/home/tanmay/Projects/blurkit-website/.next/dev" was deleted.
+
+Deleting this directory removes caches and will cause slower performance.
+
+Deleting this directory while Next.js is running can lead to undefined behavior. Restarting the server to recover...
+▲ Next.js 16.4.3 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.12:3000
+- Environments: .env
+✓ Ready in 395ms
+✓ Running next.config.ts took 35ms
+- Cache Components enabled
+- Partial Prefetching enabled
+- Experiments (use with caution):
+  · optimizePackageImports
+
+⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+▲ Next.js 16.4.3 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.12:3000
+- Environments: .env
+✓ Ready in 419ms
+✓ Running next.config.ts took 43ms
+- Cache Components enabled
+- Partial Prefetching enabled
+- Experiments (use with caution):
+  · optimizePackageImports
+
+⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+▲ Next.js 16.4.3 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.12:3000
+- Environments: .env
+✓ Ready in 376ms
+✓ Running next.config.ts took 34ms
+- Cache Components enabled
+- Partial Prefetching enabled
+- Experiments (use with caution):
+  · optimizePackageImports
+
+⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+▲ Next.js 16.4.3 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.12:3000
+- Environments: .env
+✓ Ready in 416ms
+✓ Running next.config.ts took 37ms
+- Cache Components enabled
+- Partial Prefetching enabled
+- Experiments (use with caution):
+  · optimizePackageImports
+
+Turbopack build encountered 1 error:
+./src/app
+Error: Could not find the Next.js package (next/package.json)
+Resolved from: /home/tanmay/Projects/blurkit-website/src/app
+Filesystem root used for resolution: /home/tanmay/Projects/blurkit-website
+
+Possible causes:
+  - node_modules is being reorganized by a concurrent install (e.g. pnpm adding a package with a `next` peer dependency). This is transient and should clear once the install completes.
+  - node_modules/next was removed, renamed, or has a broken symlink.
+  - The workspace root is incorrect — see turbopack.root in the Next.js config docs for how to configure it.
+  - In a monorepo, the Next.js package may only exist in a directory above the closest directory containing a package manager lockfile. The workspace root is detected by locating the nearest package manager lockfile.
+  - Next.js is installed globally rather than as a project dependency. This is not supported; install it locally.
+
+Note: To ensure a hermetic build and a portable cache, files outside of the workspace root are not compiled.
+
+https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory
+
+
+  Turbopack has seen frequent file updates and is waiting for the filesystem to settle (0.5s elapsed so far; last modified: "/home/tanmay/Projects/blurkit-website/node_modules/next/headers.js").
+  Turbopack has seen frequent file updates and is waiting for the filesystem to settle (0.5s elapsed so far; last modified: "/home/tanmay/Projects/blurkit-website/node_modules/next/package.json").
+  Turbopack has seen frequent file updates and is waiting for the filesystem to settle (0.5s elapsed so far; last modified: "/home/tanmay/Projects/blurkit-website/node_modules/next/web-vitals.d.ts").
+⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+   ▲ Next.js 15.5.28 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.12:3000
+   - Environments: .env
+
+ ✓ Starting...
+
+   We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+   The following mandatory changes were made to your tsconfig.json:
+
+   	- jsx was set to preserve (next.js implements its own optimized jsx transform)
+
+ ✓ Ready in 1003ms
+ ⚠ Found a change in next.config.js. Restarting the server to apply the changes...
+   ▲ Next.js 15.5.28 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.12:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ⚠ Found lockfile missing swc dependencies, patching...
+ ✓ Ready in 1117ms
+ ⚠ Lockfile was successfully patched, please run "npm install" to ensure @next/swc dependencies are downloaded
+ ⚠ Found a change in next.config.js. Restarting the server to apply the changes...
+   ▲ Next.js 15.5.28 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.12:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 911ms
+ ⚠ Found a change in next.config.js. Restarting the server to apply the changes...
+   ▲ Next.js 15.5.28 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.12:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 925ms
+ ⚠ Webpack is configured while Turbopack is not, which may cause problems.
+ ⚠ See instructions if you need to configure Turbopack:
+  https://nextjs.org/docs/app/api-reference/next-config-js/turbopack
+
