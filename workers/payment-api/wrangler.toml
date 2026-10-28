@@ -1,0 +1,10 @@
+name = "blurkit-payment-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[vars]
+NEXT_PUBLIC_SITE_URL = "https://blurkit-website.pages.dev"
+
+# Secrets must be set via: wrangler secret put DODO_SECRET_KEY
+# Run this command: wrangler secret put DODO_SECRET_KEY
+# Then paste your secret key when prompted

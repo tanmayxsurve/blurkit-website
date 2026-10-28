@@ -1,0 +1,14 @@
+{
+  "name": "blurkit-payment-api",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker for BlurKit payment API",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241022.0",
+    "wrangler": "^3.78.12"
+  }
+}
