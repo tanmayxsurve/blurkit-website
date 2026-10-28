@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getDodoClient } from '@/lib/dodo-payments'
 
 export const runtime = 'edge'
 
@@ -19,28 +18,69 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Get site URL from environment or request
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ||
-                    process.env.NEXT_PUBLIC_APP_URL ||
+    // Access environment variables from the Cloudflare context
+    // @ts-ignore - Cloudflare env is attached to the request
+    const env = process.env
+
+    const secretKey = env.DODO_SECRET_KEY
+    if (!secretKey) {
+      return NextResponse.json(
+        { error: 'DODO_SECRET_KEY not configured' },
+        { status: 500 }
+      )
+    }
+
+    // Get site URL
+    const siteUrl = env.NEXT_PUBLIC_SITE_URL ||
+                    env.NEXT_PUBLIC_APP_URL ||
                     req.headers.get('origin') ||
                     'https://blurkit-website.pages.dev'
 
-    const dodo = getDodoClient()
+    const baseUrl = secretKey.startsWith('dodo_test_')
+      ? 'https://test.dodopayments.com'
+      : 'https://live.dodopayments.com'
 
-    const session = await dodo.createCheckoutSession({
-      planId,
-      email,
-      successUrl: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl: `${siteUrl}/pricing`,
+    const payload = {
+      product_cart: [
+        {
+          product_id: planId,
+          quantity: 1
+        }
+      ],
+      customer: email ? { email } : undefined,
+      return_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${siteUrl}/pricing`,
       metadata: {
         plan: planId,
         timestamp: new Date().toISOString(),
       },
+    }
+
+    const response = await fetch(`${baseUrl}/checkouts`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${secretKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
     })
 
+    if (!response.ok) {
+      const errorText = await response.text()
+      let error
+      try {
+        error = JSON.parse(errorText)
+      } catch {
+        error = { message: errorText }
+      }
+      throw new Error(error.message || 'Failed to create checkout session')
+    }
+
+    const data = await response.json()
+
     return NextResponse.json({
-      checkoutUrl: session.checkoutUrl,
-      sessionId: session.sessionId,
+      checkoutUrl: data.checkout_url,
+      sessionId: data.session_id || data.id,
     })
   } catch (error) {
     console.error('Checkout error:', error instanceof Error ? error.message : 'Unknown error')
