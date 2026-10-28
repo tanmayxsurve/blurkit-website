@@ -1,3 +1,5 @@
+const path = require('path');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /* config options here */
@@ -16,6 +18,16 @@ const nextConfig = {
   // Disable TypeScript type checking during builds
   typescript: {
     ignoreBuildErrors: true,
+  },
+
+  // Webpack config to handle path aliases
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, 'src'),
+      '@/config': path.resolve(__dirname, 'config'),
+    };
+    return config;
   },
 };
 
