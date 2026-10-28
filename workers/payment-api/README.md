@@ -133,6 +133,64 @@ Receives payment completion events from Dodo. Automatically:
 2. Saves to Neon database
 3. Sends license email via Resend
 
+### POST /validate - License Validation
+
+Validates a license key and returns details.
+
+**Request:**
+```json
+{
+  "licenseKey": "BK-7MXP9-K2RT4-WQ6HN-3VZ8F"
+}
+```
+
+**Response (Valid):**
+```json
+{
+  "valid": true,
+  "license": {
+    "key": "BK-7MXP9-K2RT4-WQ6HN-3VZ8F",
+    "plan": "pdt_0NqhQec3BvgM8158TvkbE",
+    "purchasedAt": "2026-10-28T15:04:03.557883Z",
+    "email": "sur***"
+  }
+}
+```
+
+**Response (Invalid):**
+```json
+{
+  "valid": false,
+  "error": "License key not found"
+}
+```
+
+**Response (Invalid Format):**
+```json
+{
+  "valid": false,
+  "error": "Invalid license key format"
+}
+```
+
+**Usage in Chrome Extension:**
+```javascript
+const response = await fetch('https://blurkit-payment-api.survextanmay.workers.dev/validate', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ licenseKey: 'BK-7MXP9-K2RT4-WQ6HN-3VZ8F' })
+})
+
+const data = await response.json()
+if (data.valid) {
+  // Unlock features
+  console.log('License valid for plan:', data.license.plan)
+} else {
+  // Show error
+  console.error('Invalid license:', data.error)
+}
+```
+
 ## Email Template
 
 When a payment succeeds, the customer receives an email with:

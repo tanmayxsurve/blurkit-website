@@ -18,6 +18,11 @@ export default {
     const url = new URL(request.url)
     const path = url.pathname
 
+    // Route validation requests
+    if (path === '/validate' && request.method === 'POST') {
+      return handleValidation(request, env)
+    }
+
     // Route webhook requests
     if (path === '/webhook' && request.method === 'POST') {
       return handleWebhook(request, env)
@@ -31,7 +36,7 @@ export default {
     // Handle CORS preflight
     if (request.method === 'OPTIONS') {
       const corsHeaders = {
-        'Access-Control-Allow-Origin': env.NEXT_PUBLIC_SITE_URL || 'https://blurkit-website.pages.dev',
+        'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
       }
@@ -382,4 +387,107 @@ async function sendLicenseEmail(
 
   const result = await response.json()
   console.log('Email sent successfully:', result.id)
+}
+
+async function handleValidation(request: Request, env: Env): Promise<Response> {
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  }
+
+  try {
+    const { licenseKey } = await request.json()
+
+    if (!licenseKey) {
+      return new Response(
+        JSON.stringify({ valid: false, error: 'License key is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Validate format first (BK-XXXXX-XXXXX-XXXXX-XXXXX)
+    const formatPattern = /^BK-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}$/
+    if (!formatPattern.test(licenseKey)) {
+      return new Response(
+        JSON.stringify({ valid: false, error: 'Invalid license key format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Query database
+    const client = new Client({ connectionString: env.DATABASE_URL })
+    await client.connect()
+
+    const result = await client.query(
+      `SELECT
+        email,
+        license_key,
+        plan_id,
+        created_at,
+        session_id
+       FROM licenses
+       WHERE license_key = $1`,
+      [licenseKey]
+    )
+
+    await client.end()
+
+    if (result.rows.length === 0) {
+      return new Response(
+        JSON.stringify({
+          valid: false,
+          error: 'License key not found'
+        }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const license = result.rows[0]
+
+    // Log validation for analytics
+    console.log('License validated:', {
+      licenseKey,
+      email: license.email,
+      planId: license.plan_id,
+    })
+
+    // Optionally: track validation in a separate table for analytics
+    try {
+      const trackClient = new Client({ connectionString: env.DATABASE_URL })
+      await trackClient.connect()
+      await trackClient.query(
+        `INSERT INTO license_validations (license_key, validated_at)
+         VALUES ($1, NOW())`,
+        [licenseKey]
+      )
+      await trackClient.end()
+    } catch (trackError) {
+      // Don't fail validation if tracking fails
+      console.error('Failed to track validation:', trackError)
+    }
+
+    return new Response(
+      JSON.stringify({
+        valid: true,
+        license: {
+          key: license.license_key,
+          plan: license.plan_id,
+          purchasedAt: license.created_at,
+          email: license.email.substring(0, 3) + '***' // Partial email for privacy
+        }
+      }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  } catch (error) {
+    console.error('Validation error:', error)
+    return new Response(
+      JSON.stringify({
+        valid: false,
+        error: 'Validation service error',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
 }
