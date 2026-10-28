@@ -157,12 +157,10 @@ async function handleWebhook(request: Request, env: Env): Promise<Response> {
     console.log('Data metadata:', payload.data?.metadata)
     console.log('Data product_cart:', payload.data?.product_cart)
 
-    // Only handle successful payments - check multiple possible event names
+    // Only handle successful payments - check what Dodo actually sends
     const isPaymentSuccess =
-      (payload.type === 'checkout.completed' && payload.data?.status === 'completed') ||
-      (payload.type === 'payment.success') ||
-      (payload.type === 'checkout.paid') ||
-      (payload.event === 'checkout.completed' && payload.data?.status === 'completed')
+      (payload.type === 'payment.succeeded' && payload.data?.status === 'succeeded') ||
+      (payload.type === 'checkout.completed' && payload.data?.status === 'completed')
 
     if (!isPaymentSuccess) {
       console.log('Skipping webhook - event type:', payload.type, 'status:', payload.data?.status)
@@ -174,7 +172,7 @@ async function handleWebhook(request: Request, env: Env): Promise<Response> {
 
     const email = payload.data.customer?.email
     const planId = payload.data.metadata?.plan || payload.data.product_cart?.[0]?.product_id
-    const sessionId = payload.data.session_id
+    const sessionId = payload.data.checkout_session_id || payload.data.session_id || payload.data.payment_id
 
     console.log('Processing payment for:', { email, planId, sessionId })
 
