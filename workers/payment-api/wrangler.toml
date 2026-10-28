@@ -5,6 +5,9 @@ compatibility_date = "2024-01-01"
 [vars]
 NEXT_PUBLIC_SITE_URL = "https://blurkit-website.pages.dev"
 
-# Secrets must be set via: wrangler secret put DODO_SECRET_KEY
-# Run this command: wrangler secret put DODO_SECRET_KEY
-# Then paste your secret key when prompted
+# Secrets must be set via: wrangler secret put
+# Run these commands:
+# wrangler secret put DODO_SECRET_KEY
+# wrangler secret put DODO_WEBHOOK_SECRET
+# wrangler secret put RESEND_API_KEY
+# wrangler secret put DATABASE_URL
