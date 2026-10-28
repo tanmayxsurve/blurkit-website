@@ -1,12 +1,13 @@
 name = "blurkit-website"
 compatibility_date = "2024-01-01"
 
-# Cloudflare Pages configuration
-pages_build_output_dir = ".next/static"
-
+# Build configuration for Cloudflare Pages
 [build]
-command = "npm run build"
+command = "npm ci && npm run build"
 cwd = "."
+
+# Output directory - Cloudflare Pages will serve from here
+pages_build_output_dir = ".next/standalone/.next/static"
 
 [env.production]
 vars = { NODE_ENV = "production" }
