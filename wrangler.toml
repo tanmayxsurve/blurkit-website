@@ -1,6 +1,12 @@
 name = "blurkit-website"
 compatibility_date = "2024-01-01"
-pages_build_output_dir = ".vercel/output/static"
+
+# Cloudflare Pages configuration
+pages_build_output_dir = ".next/static"
+
+[build]
+command = "npm run build"
+cwd = "."
 
 [env.production]
 vars = { NODE_ENV = "production" }
@@ -8,4 +14,9 @@ vars = { NODE_ENV = "production" }
 # Environment variables (set these in Cloudflare dashboard):
 # - DATABASE_URL (Neon PostgreSQL connection string)
 # - RESEND_API_KEY (for email delivery)
-# - DODO_PAYMENTS_SECRET (for payment webhooks)
+# - DODO_SECRET_KEY (for payment processing)
+# - DODO_WEBHOOK_SECRET (for payment webhooks)
+# - RESEND_FROM_EMAIL (sender email address)
+# - NEXT_PUBLIC_APP_URL (your app URL)
+# - NEXT_PUBLIC_SITE_URL (your site URL)
+# - NEXT_PUBLIC_CHROME_STORE_URL (Chrome store link)
