@@ -192,3 +192,11 @@ https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-d
  ⚠ See instructions if you need to configure Turbopack:
   https://nextjs.org/docs/app/api-reference/next-config-js/turbopack
 
+ ⚠ Found a change in next.config.js. Restarting the server to apply the changes...
+   ▲ Next.js 15.5.28 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.12:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 933ms
