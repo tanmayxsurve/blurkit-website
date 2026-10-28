@@ -14,7 +14,7 @@ This Cloudflare Worker handles payment checkout API calls for the BlurKit websit
    ```bash
    # Set your Dodo Payments secret key
    npx wrangler secret put DODO_SECRET_KEY
-   # When prompted, paste: dodo_test_D5TphTGBUSGNp0u2.ZiRMEiI473ID-8xIeK2rz0ZyWU4xFhFY31I6c_Uwqym_yW-y
+   # When prompted, paste your Dodo test secret key
    ```
 
 3. **Test locally:**
@@ -61,9 +61,10 @@ Should return:
 ## Environment Variables
 
 The worker needs:
-- `DODO_SECRET_KEY` (secret) - Your Dodo Payments API key
+- `DODO_SECRET_KEY` (secret) - Your Dodo Payments API key (set via `wrangler secret put`)
 - `NEXT_PUBLIC_SITE_URL` (plain text in wrangler.toml) - Your website URL for CORS and redirects
 
 ## CORS Configuration
 
 The worker automatically allows CORS requests from your site URL configured in `NEXT_PUBLIC_SITE_URL`.
+
