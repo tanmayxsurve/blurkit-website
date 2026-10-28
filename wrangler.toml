@@ -3,7 +3,11 @@ compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
 
-# Bind environment variables for edge functions
 [env.production]
 vars = { NODE_ENV = "production" }
+
+# Bind secrets for production environment
+[env.production.secrets]
+# These will be injected into process.env at runtime
+
 

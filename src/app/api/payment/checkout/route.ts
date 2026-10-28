@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-export const runtime = 'edge'
+// Removed: export const runtime = 'edge'
+// Use default Node.js runtime for better environment variable support
 
 /**
  * POST /api/payment/checkout
@@ -18,11 +19,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Access environment variables from the Cloudflare context
-    // @ts-ignore - Cloudflare env is attached to the request
-    const env = process.env
-
-    const secretKey = env.DODO_SECRET_KEY
+    // Access environment variables directly
+    const secretKey = process.env.DODO_SECRET_KEY
     if (!secretKey) {
       return NextResponse.json(
         { error: 'DODO_SECRET_KEY not configured' },
@@ -31,8 +29,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Get site URL
-    const siteUrl = env.NEXT_PUBLIC_SITE_URL ||
-                    env.NEXT_PUBLIC_APP_URL ||
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ||
+                    process.env.NEXT_PUBLIC_APP_URL ||
                     req.headers.get('origin') ||
                     'https://blurkit-website.pages.dev'
 

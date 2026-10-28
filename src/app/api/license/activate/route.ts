@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
 
-export const runtime = 'edge'
+// Removed: export const runtime = 'edge'
+// Use default Node.js runtime for database access
 
 /**
  * POST /api/license/activate
