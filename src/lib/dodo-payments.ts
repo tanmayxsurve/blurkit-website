@@ -6,10 +6,14 @@ import crypto from 'crypto'
  */
 export class DodoPayments {
   private secretKey: string
-  private baseUrl = 'https://api.dodopayments.com/v1'
+  private baseUrl: string
 
   constructor(secretKey: string) {
     this.secretKey = secretKey
+    // Use test or live endpoint based on key prefix
+    this.baseUrl = secretKey.startsWith('dodo_test_')
+      ? 'https://test.dodopayments.com'
+      : 'https://live.dodopayments.com'
   }
 
   /**
@@ -23,17 +27,23 @@ export class DodoPayments {
     metadata?: Record<string, string>
   }): Promise<{ sessionId: string; checkoutUrl: string }> {
     try {
-      const response = await fetch(`${this.baseUrl}/checkout/sessions`, {
+      const response = await fetch(`${this.baseUrl}/checkouts`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.secretKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          price_id: params.planId,
-          customer_email: params.email,
-          success_url: params.successUrl,
-          cancel_url: params.cancelUrl,
+          product_cart: [
+            {
+              product_id: params.planId,
+              quantity: 1
+            }
+          ],
+          customer: {
+            email: params.email
+          },
+          return_url: params.successUrl,
           metadata: params.metadata,
         }),
       })
@@ -47,7 +57,7 @@ export class DodoPayments {
 
       return {
         sessionId: data.id,
-        checkoutUrl: data.url,
+        checkoutUrl: data.checkout_url,
       }
     } catch (error) {
       console.error('Dodo Payments error:', error)
@@ -88,7 +98,7 @@ export class DodoPayments {
    */
   async getCheckoutSession(sessionId: string): Promise<any> {
     try {
-      const response = await fetch(`${this.baseUrl}/checkout/sessions/${sessionId}`, {
+      const response = await fetch(`${this.baseUrl}/checkout/${sessionId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${this.secretKey}`,
