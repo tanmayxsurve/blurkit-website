@@ -543,7 +543,7 @@ export default function Home() {
       const response = await fetch('/api/payment/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId: 'pro-lifetime' }),
+        body: JSON.stringify({ planId: 'pdt_0NqhQec3BvgM8158TvkbE' }),
       })
 
       if (!response.ok) {

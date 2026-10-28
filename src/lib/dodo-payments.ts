@@ -39,10 +39,11 @@ export class DodoPayments {
               quantity: 1
             }
           ],
-          customer: {
+          customer: params.email ? {
             email: params.email
-          },
+          } : undefined,
           return_url: params.successUrl,
+          cancel_url: params.cancelUrl,
           metadata: params.metadata,
         }),
       })
@@ -55,7 +56,7 @@ export class DodoPayments {
       const data = await response.json()
 
       return {
-        sessionId: data.id,
+        sessionId: data.session_id || data.id,
         checkoutUrl: data.checkout_url,
       }
     } catch (error) {
