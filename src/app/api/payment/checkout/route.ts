@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// Removed: export const runtime = 'edge'
-// Use default Node.js runtime for better environment variable support
+export const runtime = 'edge'
 
 /**
  * POST /api/payment/checkout

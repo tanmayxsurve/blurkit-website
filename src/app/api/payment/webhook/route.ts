@@ -4,8 +4,7 @@ import { generateLicenseKey } from '@/lib/license-generator'
 import { sendLicenseEmail } from '@/lib/email'
 import { query } from '@/lib/db'
 
-// Removed: export const runtime = 'edge'
-// Use default Node.js runtime for database access
+export const runtime = 'edge'
 
 /**
  * POST /api/payment/webhook
