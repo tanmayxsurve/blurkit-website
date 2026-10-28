@@ -1,93 +1,62 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
 export const runtime = 'edge'
 
-/**
- * POST /api/payment/checkout
- * Creates a Dodo Payments checkout session
- */
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = await req.json()
-    const { planId, email } = body
+    const { planId, email } = await req.json()
 
     if (!planId) {
-      return NextResponse.json(
-        { error: 'planId is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'planId required' }, { status: 400 })
     }
 
-    // Access environment variables directly
-    const secretKey = process.env.DODO_SECRET_KEY
-    if (!secretKey) {
-      return NextResponse.json(
-        { error: 'DODO_SECRET_KEY not configured' },
-        { status: 500 }
-      )
+    // Get secrets from environment
+    const SECRET_KEY = process.env.DODO_SECRET_KEY
+    const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://blurkit-website.pages.dev'
+
+    if (!SECRET_KEY) {
+      return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
     }
 
-    // Get site URL
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ||
-                    process.env.NEXT_PUBLIC_APP_URL ||
-                    req.headers.get('origin') ||
-                    'https://blurkit-website.pages.dev'
-
-    const baseUrl = secretKey.startsWith('dodo_test_')
-      ? 'https://test.dodopayments.com'
-      : 'https://live.dodopayments.com'
-
-    const payload = {
-      product_cart: [
-        {
-          product_id: planId,
-          quantity: 1
-        }
-      ],
-      customer: email ? { email } : undefined,
-      return_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/pricing`,
-      metadata: {
-        plan: planId,
-        timestamp: new Date().toISOString(),
-      },
-    }
-
-    const response = await fetch(`${baseUrl}/checkouts`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${secretKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      let error
-      try {
-        error = JSON.parse(errorText)
-      } catch {
-        error = { message: errorText }
+    // Call Dodo API
+    const res = await fetch(
+      SECRET_KEY.startsWith('dodo_test_')
+        ? 'https://test.dodopayments.com/checkouts'
+        : 'https://live.dodopayments.com/checkouts',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${SECRET_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          product_cart: [{ product_id: planId, quantity: 1 }],
+          customer: email ? { email } : undefined,
+          return_url: `${SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${SITE_URL}/pricing`,
+          metadata: { plan: planId },
+        }),
       }
-      throw new Error(error.message || 'Failed to create checkout session')
-    }
+    )
 
-    const data = await response.json()
+    const data = await res.json()
+
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: data.message || 'Checkout failed' },
+        { status: res.status }
+      )
+    }
 
     return NextResponse.json({
       checkoutUrl: data.checkout_url,
-      sessionId: data.session_id || data.id,
+      sessionId: data.session_id,
     })
   } catch (error) {
-    console.error('Checkout error:', error instanceof Error ? error.message : 'Unknown error')
-
     return NextResponse.json(
-      {
-        error: 'Failed to create checkout session',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
+      { error: 'Internal error' },
       { status: 500 }
     )
   }
 }
+
