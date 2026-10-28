@@ -1,6 +1,6 @@
 'use client'
 
-import { siteConfig } from '@/../config/site.config'
+import { siteConfig } from '@/config/site.config'
 
 export default function FeaturesPage() {
   return (

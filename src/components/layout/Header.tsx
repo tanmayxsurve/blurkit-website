@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { siteConfig } from '@/../config/site.config'
+import { siteConfig } from '@/config/site.config'
 
 export function Header() {
   return (
