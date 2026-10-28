@@ -3,6 +3,8 @@
  * Handles Dodo Payments checkout creation and webhook events
  */
 
+import { Client } from '@neondatabase/serverless'
+
 interface Env {
   DODO_SECRET_KEY: string
   DODO_WEBHOOK_SECRET: string
@@ -141,10 +143,15 @@ async function handleCheckout(request: Request, env: Env): Promise<Response> {
 async function handleWebhook(request: Request, env: Env): Promise<Response> {
   try {
     const body = await request.text()
+    console.log('Webhook received:', body)
+
     const payload = JSON.parse(body)
+    console.log('Webhook event type:', payload.type)
+    console.log('Webhook data status:', payload.data?.status)
 
     // Only handle successful payments
     if (payload.type !== 'checkout.completed' || payload.data?.status !== 'completed') {
+      console.log('Skipping webhook - not a completed checkout')
       return new Response(
         JSON.stringify({ success: true }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
@@ -155,7 +162,10 @@ async function handleWebhook(request: Request, env: Env): Promise<Response> {
     const planId = payload.data.metadata?.plan || payload.data.product_cart?.[0]?.product_id
     const sessionId = payload.data.session_id
 
+    console.log('Processing payment for:', { email, planId, sessionId })
+
     if (!email || !planId) {
+      console.error('Missing email or planId:', { email, planId })
       return new Response(
         JSON.stringify({ error: 'Missing email or plan ID' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
@@ -163,9 +173,12 @@ async function handleWebhook(request: Request, env: Env): Promise<Response> {
     }
 
     // Generate license key
+    console.log('Generating license key...')
     const licenseKey = await generateLicenseKey(email, planId)
+    console.log('Generated license key:', licenseKey)
 
     // Save to database
+    console.log('Saving to database...')
     await saveLicenseToDatabase(env.DATABASE_URL, {
       email,
       licenseKey,
@@ -175,8 +188,10 @@ async function handleWebhook(request: Request, env: Env): Promise<Response> {
     })
 
     // Send email with license key
+    console.log('Sending email to:', email)
     await sendLicenseEmail(env.RESEND_API_KEY, email, licenseKey)
 
+    console.log('Webhook processed successfully')
     return new Response(
       JSON.stringify({ success: true, message: 'License sent' }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
@@ -197,7 +212,7 @@ async function generateLicenseKey(email: string, planId: string): Promise<string
   const timestamp = Date.now()
 
   // Generate random bytes using Web Crypto API
-  const randomBytes = new Uint8Array(8)
+  const randomBytes = new Uint8Array(12)
   crypto.getRandomValues(randomBytes)
   const randomHex = Array.from(randomBytes)
     .map(b => b.toString(16).padStart(2, '0'))
@@ -208,15 +223,16 @@ async function generateLicenseKey(email: string, planId: string): Promise<string
   const data = encoder.encode(`${email}${planId}${timestamp}${randomHex}`)
   const hashBuffer = await crypto.subtle.digest('SHA-256', data)
   const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const hash = hashArray
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('')
-    .substring(0, 16)
-    .toUpperCase()
 
-  // Format: BLURKIT-XXXX-XXXX-XXXX-XXXX
-  const parts = hash.match(/.{1,4}/g) || []
-  return `BLURKIT-${parts.join('-')}`
+  // Convert to base32-like format (alphanumeric uppercase, no confusing chars)
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789' // No O, I, 0, 1
+  let result = ''
+  for (let i = 0; i < 20; i++) {
+    result += chars[hashArray[i] % chars.length]
+  }
+
+  // Format: BK-XXXXX-XXXXX-XXXXX-XXXXX
+  return `BK-${result.slice(0, 5)}-${result.slice(5, 10)}-${result.slice(10, 15)}-${result.slice(15, 20)}`
 }
 
 async function saveLicenseToDatabase(
@@ -229,34 +245,28 @@ async function saveLicenseToDatabase(
     createdAt: string
   }
 ): Promise<void> {
-  // Using Neon serverless client
-  const query = `
-    INSERT INTO licenses (email, license_key, plan_id, session_id, created_at)
-    VALUES ($1, $2, $3, $4, $5)
-    ON CONFLICT (license_key) DO NOTHING
-  `
-
-  const params = [
-    licenseData.email,
-    licenseData.licenseKey,
-    licenseData.planId,
-    licenseData.sessionId,
-    licenseData.createdAt,
-  ]
-
   try {
-    const response = await fetch(new URL('/sql', databaseUrl).toString(), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, params }),
-    })
+    const client = new Client({ connectionString: databaseUrl })
+    await client.connect()
 
-    if (!response.ok) {
-      throw new Error(`Database error: ${response.statusText}`)
-    }
+    await client.query(
+      `INSERT INTO licenses (email, license_key, plan_id, session_id, created_at)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (license_key) DO NOTHING`,
+      [
+        licenseData.email,
+        licenseData.licenseKey,
+        licenseData.planId,
+        licenseData.sessionId,
+        licenseData.createdAt,
+      ]
+    )
+
+    await client.end()
+    console.log('License saved to database:', licenseData.licenseKey)
   } catch (error) {
     console.error('Database save error:', error)
-    throw error
+    throw new Error(`Failed to save license: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
 
@@ -322,6 +332,10 @@ async function sendLicenseEmail(
 
   if (!response.ok) {
     const error = await response.json()
-    throw new Error(`Failed to send email: ${error.message}`)
+    console.error('Resend error response:', error)
+    throw new Error(`Failed to send email: ${error.message || response.statusText}`)
   }
+
+  const result = await response.json()
+  console.log('Email sent successfully:', result.id)
 }
