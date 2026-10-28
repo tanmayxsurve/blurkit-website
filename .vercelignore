@@ -1,0 +1,2 @@
+# Cloudflare Pages doesn't need the webpack cache
+.next/cache
