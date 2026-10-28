@@ -1,6 +1,7 @@
 name = "blurkit-website"
 compatibility_date = "2024-01-01"
 pages_build_output_dir = ".next"
+node_version = "22"
 
 [env.production]
 vars = { NODE_ENV = "production" }

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { siteConfig } from '@/config/site.config.ts'
+import { siteConfig } from '@/config/site.config'
 import LogoStrip from '@/components/LogoStrip'
 
 const heroStyles = `

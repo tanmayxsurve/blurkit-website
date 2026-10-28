@@ -1,0 +1,41 @@
+
+> blurkit-website@0.1.0 build
+> next build
+
+   ▲ Next.js 15.5.28
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 2.2s
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+   Generating static pages (0/14) ...
+   Generating static pages (3/14) 
+   Generating static pages (6/14) 
+   Generating static pages (10/14) 
+ ✓ Generating static pages (14/14)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                    8.68 kB         112 kB
+├ ○ /_not-found                            998 B         104 kB
+├ ƒ /api/license/activate                  135 B         103 kB
+├ ƒ /api/license/validate                  135 B         103 kB
+├ ƒ /api/payment/checkout                  135 B         103 kB
+├ ƒ /api/payment/webhook                   135 B         103 kB
+├ ○ /features                            2.52 kB         106 kB
+├ ○ /pricing                             2.55 kB         106 kB
+├ ○ /privacy                             2.65 kB         106 kB
+├ ○ /success                             2.43 kB         109 kB
+└ ○ /terms                                 135 B         103 kB
++ First Load JS shared by all             103 kB
+  ├ chunks/255-b1e2483a7e02feee.js       46.8 kB
+  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.4 kB
+  └ other shared chunks (total)          1.92 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

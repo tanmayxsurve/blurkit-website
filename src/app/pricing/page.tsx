@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { siteConfig } from '@/config/site.config.ts'
+import { siteConfig } from '@/config/site.config'
 
 const styles = `
   .pricing-section {

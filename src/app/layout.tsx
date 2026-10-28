@@ -3,7 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { siteConfig } from '@/config/site.config.ts';
+import { siteConfig } from '@/config/site.config';
 
 const inter = Inter({
   variable: "--font-primary",

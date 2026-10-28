@@ -1,6 +1,6 @@
 'use client'
 
-import { siteConfig } from '@/config/site.config.ts'
+import { siteConfig } from '@/config/site.config'
 
 const styles = `
   .privacy-section {
