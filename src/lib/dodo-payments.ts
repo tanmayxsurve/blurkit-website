@@ -1,8 +1,7 @@
-import crypto from 'crypto'
-
 /**
  * Dodo Payments API Client
  * Wrapper for interacting with Dodo Payments API
+ * Uses Web Crypto API for edge runtime compatibility
  */
 export class DodoPayments {
   private secretKey: string
@@ -66,9 +65,9 @@ export class DodoPayments {
   }
 
   /**
-   * Verify webhook signature
+   * Verify webhook signature using Web Crypto API
    */
-  verifyWebhookSignature(payload: string, signature: string): boolean {
+  async verifyWebhookSignature(payload: string, signature: string): Promise<boolean> {
     try {
       const webhookSecret = process.env.DODO_WEBHOOK_SECRET
 
@@ -76,21 +75,46 @@ export class DodoPayments {
         throw new Error('DODO_WEBHOOK_SECRET is not configured')
       }
 
-      // Create HMAC signature
-      const expectedSignature = crypto
-        .createHmac('sha256', webhookSecret)
-        .update(payload)
-        .digest('hex')
-
-      // Compare signatures (constant-time comparison)
-      return crypto.timingSafeEqual(
-        Buffer.from(signature),
-        Buffer.from(expectedSignature)
+      // Import the key for HMAC
+      const encoder = new TextEncoder()
+      const keyData = encoder.encode(webhookSecret)
+      const key = await crypto.subtle.importKey(
+        'raw',
+        keyData,
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
       )
+
+      // Create HMAC signature
+      const payloadData = encoder.encode(payload)
+      const signatureBuffer = await crypto.subtle.sign('HMAC', key, payloadData)
+      const signatureArray = Array.from(new Uint8Array(signatureBuffer))
+      const expectedSignature = signatureArray
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('')
+
+      // Constant-time comparison
+      return this.timingSafeEqual(signature, expectedSignature)
     } catch (error) {
       console.error('Webhook signature verification failed:', error)
       return false
     }
+  }
+
+  /**
+   * Constant-time string comparison
+   */
+  private timingSafeEqual(a: string, b: string): boolean {
+    if (a.length !== b.length) {
+      return false
+    }
+
+    let result = 0
+    for (let i = 0; i < a.length; i++) {
+      result |= a.charCodeAt(i) ^ b.charCodeAt(i)
+    }
+    return result === 0
   }
 
   /**

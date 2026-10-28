@@ -1,8 +1,10 @@
 import { Pool, neonConfig } from '@neondatabase/serverless'
-import ws from 'ws'
 
-// Configure for edge runtime compatibility
-neonConfig.webSocketConstructor = ws
+// For Cloudflare Workers edge runtime, we don't need ws
+// The edge runtime provides native WebSocket support
+if (typeof WebSocket !== 'undefined') {
+  neonConfig.webSocketConstructor = WebSocket as any
+}
 
 let pool: Pool | null = null
 

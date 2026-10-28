@@ -1,16 +1,25 @@
-import crypto from 'crypto'
-
 /**
- * Generates a unique BlurKit license key
+ * Generates a unique BlurKit license key using Web Crypto API
  * Format: BLURKIT-XXXX-XXXX-XXXX-XXXX
  */
-export function generateLicenseKey(email: string, planId: string): string {
+export async function generateLicenseKey(email: string, planId: string): Promise<string> {
   const timestamp = Date.now()
-  const randomBytes = crypto.randomBytes(8).toString('hex')
-  const hash = crypto
-    .createHash('sha256')
-    .update(`${email}${planId}${timestamp}${randomBytes}`)
-    .digest('hex')
+
+  // Generate random bytes using Web Crypto API
+  const randomBytes = new Uint8Array(8)
+  crypto.getRandomValues(randomBytes)
+  const randomHex = Array.from(randomBytes)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+
+  // Create hash using Web Crypto API
+  const encoder = new TextEncoder()
+  const data = encoder.encode(`${email}${planId}${timestamp}${randomHex}`)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hash = hashArray
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
     .substring(0, 16)
     .toUpperCase()
 

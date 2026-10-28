@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
 
+export const runtime = 'edge'
+
 /**
  * POST /api/license/validate
  * Validates a license key and checks device binding

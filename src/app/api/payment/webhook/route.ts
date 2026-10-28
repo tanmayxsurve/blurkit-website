@@ -4,6 +4,8 @@ import { generateLicenseKey } from '@/lib/license-generator'
 import { sendLicenseEmail } from '@/lib/email'
 import { query } from '@/lib/db'
 
+export const runtime = 'edge'
+
 /**
  * POST /api/payment/webhook
  * Handles Dodo Payments webhooks
@@ -24,7 +26,8 @@ export async function POST(req: NextRequest) {
     const dodo = getDodoClient()
 
     // Verify webhook signature
-    if (!dodo.verifyWebhookSignature(payload, signature)) {
+    const isValid = await dodo.verifyWebhookSignature(payload, signature)
+    if (!isValid) {
       console.error('Invalid webhook signature')
       return NextResponse.json(
         { error: 'Invalid signature' },
@@ -69,7 +72,7 @@ export async function POST(req: NextRequest) {
       const orderId = orderResult.rows[0].id
 
       // Generate license key
-      const licenseKey = generateLicenseKey(email, planId)
+      const licenseKey = await generateLicenseKey(email, planId)
 
       // Determine expiration date (null for lifetime)
       const expiresAt = planId.includes('lifetime')

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
 
+export const runtime = 'edge'
+
 /**
  * POST /api/license/activate
  * Activates a license key and binds it to a device

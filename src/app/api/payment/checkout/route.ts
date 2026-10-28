@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDodoClient } from '@/lib/dodo-payments'
 
+export const runtime = 'edge'
+
 /**
  * POST /api/payment/checkout
  * Creates a Dodo Payments checkout session

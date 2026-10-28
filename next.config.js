@@ -4,7 +4,6 @@ const path = require('path');
 const nextConfig = {
   /* config options here */
   reactStrictMode: true,
-  output: 'export',
 
   // Image optimization settings
   images: {
