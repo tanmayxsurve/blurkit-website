@@ -1,11 +1,11 @@
 name = "blurkit-website"
 compatibility_date = "2024-01-01"
 
-# Output directory - Cloudflare Pages will serve from here
-pages_build_output_dir = ".next"
+# Cloudflare Pages configuration
+pages_build_output_dir = "public"
 
 [build]
-command = "npm install && npm run build"
+command = "npm install && npm run build && npm run export"
 cwd = "."
 
 [env.production]
