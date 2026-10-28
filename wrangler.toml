@@ -3,16 +3,3 @@ compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
 
-[env.production]
-vars = {
-  NODE_ENV = "production",
-  NEXT_PUBLIC_SITE_URL = "https://blurkit-website.pages.dev",
-  NEXT_PUBLIC_APP_URL = "https://blurkit-website.pages.dev",
-  NEXT_PUBLIC_CHROME_STORE_URL = "https://chromewebstore.google.com/detail/blurkit/mgkbgadmjmmokapanfiopeaddiebdjmn"
-}
-
-# Bind secrets for production environment
-[env.production.secrets]
-# These will be injected into process.env at runtime
-
-
