@@ -3,7 +3,7 @@ export const siteConfig = {
   tagline: 'Protect Your Privacy While Sharing Your Screen',
   description: 'BlurKit automatically detects and blurs 11 types of sensitive data in real-time. Perfect for screen sharing, demos, and presentations.',
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://blurkit.dev',
-  chromeStoreUrl: process.env.NEXT_PUBLIC_CHROME_STORE_URL || '#',
+  chromeStoreUrl: 'https://chromewebstore.google.com/detail/blurkit/mgkbgadmjmmokapanfiopeaddiebdjmn',
   github: 'https://github.com/tanmayxsurve/blur',
   support: 'survextanmay@gmail.com',
 
