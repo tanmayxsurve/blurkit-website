@@ -5,39 +5,53 @@ export const runtime = 'edge'
 
 /**
  * POST /api/license/activate
- * Activates a license key and binds it to a device
+ * Activates a license key on a browser instance (latest activation wins)
  *
  * Request:
  * {
  *   "licenseKey": "BLURKIT-XXXX-XXXX-XXXX-XXXX",
- *   "deviceId": "device_fingerprint_hash"
+ *   "browserInstanceId": "uuid-v4-generated-by-extension"
  * }
  *
  * Response (Success):
  * {
- *   "success": true,
- *   "message": "License activated on this device",
- *   "licenseKey": "BLURKIT-XXXX-XXXX-XXXX-XXXX",
- *   "deviceId": "device_fingerprint_hash"
+ *   "status": "activated",
+ *   "plan": "pro",
+ *   "activatedAt": "2026-10-29T13:23:45Z"
  * }
  *
  * Response (Error):
  * {
- *   "success": false,
- *   "error": "License already activated on another device"
+ *   "status": "error",
+ *   "code": "INVALID_LICENSE",
+ *   "message": "License key not found or expired"
  * }
  */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { licenseKey, deviceId } = body
+    const { licenseKey, browserInstanceId } = body
 
     // Validate input
-    if (!licenseKey || !deviceId) {
+    if (!licenseKey || !browserInstanceId) {
       return NextResponse.json(
         {
-          success: false,
-          error: 'licenseKey and deviceId are required',
+          status: 'error',
+          code: 'INVALID_REQUEST',
+          message: 'licenseKey and browserInstanceId are required',
+        },
+        { status: 400 }
+      )
+    }
+
+    // Validate browserInstanceId is UUID v4 format (36 chars)
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    if (!uuidPattern.test(browserInstanceId)) {
+      return NextResponse.json(
+        {
+          status: 'error',
+          code: 'INVALID_BROWSER_ID',
+          message: 'browserInstanceId must be a valid UUID v4',
         },
         { status: 400 }
       )
@@ -48,16 +62,17 @@ export async function POST(req: NextRequest) {
     if (!licenseKeyPattern.test(licenseKey)) {
       return NextResponse.json(
         {
-          success: false,
-          error: 'Invalid license key format',
+          status: 'error',
+          code: 'INVALID_LICENSE_FORMAT',
+          message: 'Invalid license key format',
         },
         { status: 400 }
       )
     }
 
-    // Check if license exists
+    // Check if license exists and is active
     const licenseResult = await query(
-      `SELECT id, key, email, plan, status, device_id, activated_at
+      `SELECT id, key, email, plan, status, expires_at
        FROM licenses
        WHERE key = $1`,
       [licenseKey]
@@ -66,8 +81,9 @@ export async function POST(req: NextRequest) {
     if (licenseResult.rows.length === 0) {
       return NextResponse.json(
         {
-          success: false,
-          error: 'Invalid license key',
+          status: 'error',
+          code: 'INVALID_LICENSE',
+          message: 'License key not found',
         },
         { status: 404 }
       )
@@ -79,64 +95,71 @@ export async function POST(req: NextRequest) {
     if (license.status !== 'active') {
       return NextResponse.json(
         {
-          success: false,
-          error: `License is ${license.status}`,
+          status: 'error',
+          code: 'LICENSE_INACTIVE',
+          message: `License is ${license.status}`,
         },
         { status: 403 }
       )
     }
 
-    // Check if license is already activated
-    if (license.device_id) {
-      // License already activated on some device
-      if (license.device_id === deviceId) {
-        // Same device - allow (user reinstalling or clearing storage)
-        return NextResponse.json({
-          success: true,
-          message: 'License already activated on this device',
-          licenseKey,
-          deviceId,
-        })
-      } else {
-        // Different device - reject
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'License already activated on another device',
-            boundDevice: license.device_id,
-          },
-          { status: 403 }
-        )
-      }
+    // Check expiration (if set)
+    if (license.expires_at && new Date(license.expires_at) < new Date()) {
+      return NextResponse.json(
+        {
+          status: 'error',
+          code: 'LICENSE_EXPIRED',
+          message: 'License has expired',
+        },
+        { status: 403 }
+      )
     }
 
-    // First activation - bind license to this device
+    // Deactivate ALL other device registrations for this license
+    await query(
+      `UPDATE device_registrations
+       SET deactivated_at = NOW()
+       WHERE license_id = $1 AND deactivated_at IS NULL`,
+      [license.id]
+    )
+
+    // Create new device registration (latest activation wins)
+    await query(
+      `INSERT INTO device_registrations (license_id, browser_instance_id, activated_at)
+       VALUES ($1, $2, NOW())
+       ON CONFLICT (browser_instance_id)
+       DO UPDATE SET activated_at = NOW(), deactivated_at = NULL`,
+      [license.id, browserInstanceId]
+    )
+
+    // Optional: Update active_browser_instance_id on licenses table for quick lookup
     await query(
       `UPDATE licenses
-       SET device_id = $1, activated_at = NOW(), last_validated_at = NOW()
-       WHERE key = $2`,
-      [deviceId, licenseKey]
+       SET active_browser_instance_id = $1
+       WHERE id = $2`,
+      [browserInstanceId, license.id]
     )
 
     console.log('[BlurKit License] Activated:', {
       licenseKey: licenseKey.substring(0, 15) + '...',
-      deviceId: deviceId.substring(0, 10) + '...',
+      browserInstanceId: browserInstanceId.substring(0, 13) + '...',
       email: license.email,
+      plan: license.plan,
     })
 
     return NextResponse.json({
-      success: true,
-      message: 'License activated on this device',
-      licenseKey,
-      deviceId,
+      status: 'activated',
+      plan: license.plan,
+      activatedAt: new Date().toISOString(),
     })
   } catch (error) {
     console.error('[BlurKit License] Activation error:', error)
 
     return NextResponse.json(
       {
-        success: false,
-        error: 'Server error',
+        status: 'error',
+        code: 'SERVER_ERROR',
+        message: 'Internal server error',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }

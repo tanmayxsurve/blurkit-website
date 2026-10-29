@@ -270,56 +270,25 @@ async function saveLicenseToDatabase(
     const client = new Client({ connectionString: databaseUrl })
     await client.connect()
 
-    // First, check table structure
-    const tableCheck = await client.query(
-      `SELECT column_name FROM information_schema.columns WHERE table_name = 'licenses'`
-    )
-    console.log('Existing columns:', tableCheck.rows)
-
-    // Try insert with different column name variations
+    // Use correct column names: key (not license_key), plan (not plan_id)
+    // Note: device_id is left NULL - device binding happens on activation
     const insertQuery = `
-      INSERT INTO licenses (email, license_key, plan_id, session_id, created_at)
-      VALUES ($1, $2, $3, $4, $5)
-      ON CONFLICT (license_key) DO NOTHING
+      INSERT INTO licenses (email, key, plan, status)
+      VALUES ($1, $2, $3, 'active')
+      ON CONFLICT (key) DO NOTHING
     `
 
     const result = await client.query(insertQuery, [
       licenseData.email,
       licenseData.licenseKey,
       licenseData.planId,
-      licenseData.sessionId,
-      licenseData.createdAt,
     ])
 
     console.log('License saved to database:', licenseData.licenseKey)
     await client.end()
   } catch (error) {
-    console.error('Database error details:', error)
-
-    // Try alternative table structure if first attempt fails
-    try {
-      const client = new Client({ connectionString: databaseUrl })
-      await client.connect()
-
-      // Alternative: try without ON CONFLICT if table doesn't have unique constraint
-      await client.query(
-        `INSERT INTO licenses (email, license_key, plan_id, session_id, created_at)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [
-          licenseData.email,
-          licenseData.licenseKey,
-          licenseData.planId,
-          licenseData.sessionId,
-          licenseData.createdAt,
-        ]
-      )
-
-      console.log('License saved (alternative method)')
-      await client.end()
-    } catch (fallbackError) {
-      console.error('Fallback error:', fallbackError)
-      throw new Error(`Failed to save license: ${error instanceof Error ? error.message : 'Unknown error'}`)
-    }
+    console.error('Database save error:', error)
+    throw new Error(`Failed to save license: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
 
