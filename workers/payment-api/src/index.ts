@@ -51,9 +51,13 @@ export default {
 }
 
 async function handleCheckout(request: Request, env: Env): Promise<Response> {
-  // CORS headers
+  // CORS headers - allow both www and non-www
+  const origin = request.headers.get('Origin') || ''
+  const allowedOrigins = ['https://blurkit.app', 'https://www.blurkit.app']
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : 'https://blurkit.app'
+
   const corsHeaders = {
-    'Access-Control-Allow-Origin': env.NEXT_PUBLIC_SITE_URL || 'https://blurkit.app',
+    'Access-Control-Allow-Origin': corsOrigin,
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   }
