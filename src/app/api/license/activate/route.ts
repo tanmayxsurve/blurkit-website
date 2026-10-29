@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
         {
           status: 'error',
           code: 'INVALID_LICENSE_FORMAT',
-          message: 'Invalid license key format',
+          message: 'Invalid license key format. Expected: BK-XXXXX-XXXXX-XXXXX-XXXXX',
         },
         { status: 400 }
       )

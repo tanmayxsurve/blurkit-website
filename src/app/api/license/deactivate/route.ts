@@ -63,14 +63,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Validate license key format: BK-XXXXX-XXXXX-XXXXX-XXXXX
+    // Validate license key format: BK-XXXXX-XXXXX-XXXXX-XXXXX (base32-like, no O, I, 0, 1)
     const licenseKeyPattern = /^BK-[A-HJ-NP-Z2-9]{5}-[A-HJ-NP-Z2-9]{5}-[A-HJ-NP-Z2-9]{5}-[A-HJ-NP-Z2-9]{5}$/
     if (!licenseKeyPattern.test(licenseKey)) {
       return NextResponse.json(
         {
           status: 'error',
           code: 'INVALID_LICENSE_FORMAT',
-          message: 'Invalid license key format',
+          message: 'Invalid license key format. Expected: BK-XXXXX-XXXXX-XXXXX-XXXXX',
         },
         { status: 400 }
       )
