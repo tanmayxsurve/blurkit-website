@@ -32,7 +32,7 @@ export async function sendLicenseEmail(
     const planName = plan.includes('lifetime') ? 'Pro Lifetime' : 'Pro Monthly'
 
     await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'BlurKit <hello@blurkit.dev>',
+      from: process.env.RESEND_FROM_EMAIL || 'BlurKit <noreply@blurkit.app>',
       to: email,
       subject: 'Your BlurKit Pro License Key 🎉',
       html: `

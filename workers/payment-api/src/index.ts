@@ -331,7 +331,7 @@ async function sendLicenseEmail(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'BlurKit <onboarding@resend.dev>',
+      from: 'BlurKit <noreply@blurkit.app>',
       to: email,
       subject: '🎉 Your BlurKit License Key',
       html: `
