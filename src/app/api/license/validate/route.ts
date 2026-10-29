@@ -10,7 +10,7 @@ export const runtime = 'edge'
  *
  * Request:
  * {
- *   "licenseKey": "BLURKIT-XXXX-XXXX-XXXX-XXXX",
+ *   "licenseKey": "BK-XXXXX-XXXXX-XXXXX-XXXXX",
  *   "browserInstanceId": "uuid-v4-generated-by-extension"
  * }
  *
@@ -58,8 +58,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Validate license key format
-    const licenseKeyPattern = /^BLURKIT-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}$/
+    // Validate license key format: BK-XXXXX-XXXXX-XXXXX-XXXXX
+    const licenseKeyPattern = /^BK-[A-HJ-NP-Z2-9]{5}-[A-HJ-NP-Z2-9]{5}-[A-HJ-NP-Z2-9]{5}-[A-HJ-NP-Z2-9]{5}$/
     if (!licenseKeyPattern.test(licenseKey)) {
       return NextResponse.json(
         {
@@ -73,9 +73,9 @@ export async function POST(req: NextRequest) {
 
     // Check if license exists and is active
     const licenseResult = await query(
-      `SELECT id, key, email, plan, status, expires_at
+      `SELECT id, license_key, email, plan_id, status, expires_at
        FROM licenses
-       WHERE key = $1`,
+       WHERE license_key = $1`,
       [licenseKey]
     )
 
@@ -160,7 +160,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       status: 'valid',
-      plan: license.plan,
+      plan: license.plan_id,
       activatedAt: registration.activated_at,
     })
   } catch (error) {

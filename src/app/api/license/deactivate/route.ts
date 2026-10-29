@@ -10,7 +10,7 @@ export const runtime = 'edge'
  *
  * Request:
  * {
- *   "licenseKey": "BLURKIT-XXXX-XXXX-XXXX-XXXX",
+ *   "licenseKey": "BK-XXXXX-XXXXX-XXXXX-XXXXX",
  *   "browserInstanceId": "uuid-v4-generated-by-extension"
  * }
  *
@@ -63,8 +63,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Validate license key format
-    const licenseKeyPattern = /^BLURKIT-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}$/
+    // Validate license key format: BK-XXXXX-XXXXX-XXXXX-XXXXX
+    const licenseKeyPattern = /^BK-[A-HJ-NP-Z2-9]{5}-[A-HJ-NP-Z2-9]{5}-[A-HJ-NP-Z2-9]{5}-[A-HJ-NP-Z2-9]{5}$/
     if (!licenseKeyPattern.test(licenseKey)) {
       return NextResponse.json(
         {
@@ -78,9 +78,9 @@ export async function POST(req: NextRequest) {
 
     // Look up license
     const licenseResult = await query(
-      `SELECT id, key, email, plan, status
+      `SELECT id, license_key, email, plan_id, status
        FROM licenses
-       WHERE key = $1`,
+       WHERE license_key = $1`,
       [licenseKey]
     )
 
