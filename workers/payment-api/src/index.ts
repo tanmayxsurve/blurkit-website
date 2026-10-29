@@ -53,7 +53,7 @@ export default {
 async function handleCheckout(request: Request, env: Env): Promise<Response> {
   // CORS headers
   const corsHeaders = {
-    'Access-Control-Allow-Origin': env.NEXT_PUBLIC_SITE_URL || 'https://blurkit-website.pages.dev',
+    'Access-Control-Allow-Origin': env.NEXT_PUBLIC_SITE_URL || 'https://blurkit.app',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   }
@@ -84,7 +84,7 @@ async function handleCheckout(request: Request, env: Env): Promise<Response> {
       )
     }
 
-    const siteUrl = env.NEXT_PUBLIC_SITE_URL || 'https://blurkit-website.pages.dev'
+    const siteUrl = env.NEXT_PUBLIC_SITE_URL || 'https://blurkit.app'
     const baseUrl = secretKey.startsWith('dodo_test_')
       ? 'https://test.dodopayments.com'
       : 'https://live.dodopayments.com'

@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
     // Get secrets from environment
     const SECRET_KEY = process.env.DODO_SECRET_KEY
-    const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://blurkit-website.pages.dev'
+    const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://blurkit.app'
 
     if (!SECRET_KEY) {
       return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
