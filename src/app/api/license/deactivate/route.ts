@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
 
     // Look up license
     const licenseResult = await query(
-      `SELECT id, license_key, email, plan_id, status
+      `SELECT id, license_key, email, plan_id
        FROM licenses
        WHERE license_key = $1`,
       [licenseKey]

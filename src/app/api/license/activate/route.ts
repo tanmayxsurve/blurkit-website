@@ -70,9 +70,9 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Check if license exists and is active
+    // Check if license exists
     const licenseResult = await query(
-      `SELECT id, license_key, email, plan_id, status, expires_at
+      `SELECT id, license_key, email, plan_id
        FROM licenses
        WHERE license_key = $1`,
       [licenseKey]
@@ -90,30 +90,6 @@ export async function POST(req: NextRequest) {
     }
 
     const license = licenseResult.rows[0]
-
-    // Check license status
-    if (license.status !== 'active') {
-      return NextResponse.json(
-        {
-          status: 'error',
-          code: 'LICENSE_INACTIVE',
-          message: `License is ${license.status}`,
-        },
-        { status: 403 }
-      )
-    }
-
-    // Check expiration (if set)
-    if (license.expires_at && new Date(license.expires_at) < new Date()) {
-      return NextResponse.json(
-        {
-          status: 'error',
-          code: 'LICENSE_EXPIRED',
-          message: 'License has expired',
-        },
-        { status: 403 }
-      )
-    }
 
     // Deactivate ALL other device registrations for this license
     await query(
