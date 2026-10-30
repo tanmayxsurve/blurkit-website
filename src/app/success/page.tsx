@@ -189,7 +189,7 @@ const styles = `
     gap: 10px;
     font-size: 20px;
     font-weight: 800;
-    color: var(--text-main);
+    color: #ffffff;
     text-decoration: none !important;
   }
 
@@ -200,7 +200,7 @@ const styles = `
     height: 28px;
     border-radius: 6px;
     background: linear-gradient(135deg, #4097ff, #3158ed);
-    color: white;
+    color: #ffffff;
     font-size: 16px;
   }
 
