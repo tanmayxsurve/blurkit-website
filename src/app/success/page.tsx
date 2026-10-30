@@ -1,189 +1,422 @@
-'use client'
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 
-import { Suspense, useEffect, useState } from 'react'
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
-import { siteConfig } from '@/config/site.config'
+const inter = Inter({ subsets: ["latin"] });
 
-function SuccessContent() {
-  const searchParams = useSearchParams()
-  const sessionId = searchParams.get('session_id')
-  const [loading, setLoading] = useState(true)
+export const metadata: Metadata = {
+  title: "Welcome to BlurKit Pro",
+  description: "Thank you for purchasing BlurKit Pro.",
+};
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 2000)
+const styles = `
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --text-light: #94a3b8;
+    --blue: #316bf4;
+    --blue-dark: #2556d9;
+    --blue-soft: #eaf0ff;
+    --border: #e2e8f0;
+    --green: #16a34a;
+  }
 
-    return () => clearTimeout(timer)
-  }, [sessionId])
+  .welcome-page {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
+  .welcome-page a {
+    color: var(--blue);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .welcome-page a:hover {
+    color: var(--blue-dark);
+    text-decoration: underline;
+  }
+
+  /* --- Main Content --- */
+  .main-container {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 80px 20px 80px;
+    flex: 1;
+  }
+
+  /* Success Card */
+  .success-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 48px;
+    text-align: center;
+    box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.05);
+    margin-bottom: 24px;
+  }
+
+  .success-emoji {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: inline-block;
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .success-title {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+
+  .success-desc {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .notice-text {
+    font-size: 14px;
+    color: var(--text-light);
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* Sections (Activation) */
+  .section-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 40px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.02);
+  }
+
+  /* Centered Activation Section */
+  .activation-section {
+    text-align: center;
+  }
+
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 32px;
+    color: var(--text-main);
+  }
+
+  /* Steps Container */
+  .steps-list {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 24px;
+    text-align: left;
+    max-width: 450px;
+  }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    background-color: var(--blue-soft);
+    color: var(--blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .step-content h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .step-content p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* --- Footer --- */
+  .footer {
+    background-color: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 60px 20px 40px;
+  }
+
+  .footer-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+
+  .footer-brand p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 12px;
+    margin-bottom: 16px;
+    max-width: 280px;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-main);
+    text-decoration: none !important;
+  }
+
+  .brand-icon {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #4097ff, #3158ed);
+    color: white;
+    font-size: 16px;
+  }
+
+  .privacy-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .privacy-badge svg {
+    width: 14px;
+    height: 14px;
+    color: var(--green);
+  }
+
+  .footer-col h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .footer-col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-col a {
+    font-size: 14px;
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .footer-col a:hover {
+    color: var(--blue);
+  }
+
+  .footer-bottom {
+    max-width: 1000px;
+    margin: 0 auto;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text-light);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .success-card, .section-card {
+      padding: 32px 24px;
+    }
+    .footer-container {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer-container {
+      grid-template-columns: 1fr;
+    }
+    .footer-bottom {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+`;
+
+const steps = [
+  {
+    title: "Install BlurKit",
+    desc: (
+      <>
+        Get BlurKit from the{" "}
+        <a
+          href="https://chromewebstore.google.com/detail/blurkit/mgkbgadmjmmokapanfiopeaddiebdjmn"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Chrome Web Store
+        </a>
+        .
+      </>
+    ),
+  },
+  {
+    title: "Click the BlurKit Icon",
+    desc: "Click the BlurKit icon in your Chrome toolbar to open the popup.",
+  },
+  {
+    title: "Go to Settings",
+    desc: "Click the settings icon and go to the \"About\" tab.",
+  },
+  {
+    title: "Enter License Key",
+    desc: "Paste your license key from the email and click \"Activate\".",
+  },
+  {
+    title: "Enjoy Pro Features!",
+    desc: "All features are now unlocked. Happy blurring!",
+  },
+];
+
+export default function WelcomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-dark via-dark to-dark-900 flex items-center justify-center py-20">
-      <div className="container mx-auto px-4 max-w-2xl">
-        <div className="text-center mb-8">
-          <div className="text-6xl mb-4">🎉</div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Payment Successful!
-          </h1>
-          <p className="text-xl text-gray-300 mb-8">
-            Thank you for purchasing BlurKit Pro!
+    <div className={`welcome-page ${inter.className}`}>
+      <style dangerouslySetInnerHTML={{ __html: styles }} />
+
+      {/* Main Content */}
+      <main className="main-container">
+
+        {/* Success Card */}
+        <div className="success-card">
+          <div className="success-emoji">🎉</div>
+          <h1 className="success-title">Welcome</h1>
+          <p className="success-desc">
+            Thank you for purchasing <strong>BlurKit Pro!</strong>
+          </p>
+
+          <p className="notice-text">
+            Your license key has been sent to your email. Please check your inbox and spam folder.
+            If you don&apos;t receive it shortly, please contact support.
           </p>
         </div>
 
-        <div className="bg-dark-100 rounded-lg border-2 border-primary p-8 mb-8">
-          <div className="text-center mb-6">
-            <p className="text-gray-400 mb-2">Your license key has been sent to your email</p>
-            <p className="text-sm text-gray-500 mb-4">Check your inbox and spam folder</p>
+        {/* Activation Steps (Centered) */}
+        <div className="section-card activation-section">
+          <h2 className="section-title">How to Activate</h2>
+
+          <div className="steps-list">
+            {steps.map((step, index) => (
+              <div className="step" key={index}>
+                <div className="step-num">{index + 1}</div>
+                <div className="step-content">
+                  <h4>{step.title}</h4>
+                  <p>{step.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </main>
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="footer-container">
+
+          {/* Brand */}
+          <div className="footer-brand">
+            <a href="https://blurkit.app/" className="brand">
+              <span className="brand-icon">↗</span>
+              BlurKit
+            </a>
+            <p>Protect your privacy while sharing your screen. Auto-blur sensitive data with one click.</p>
+            <div className="privacy-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              Everything stays on your computer
+            </div>
           </div>
 
-          {loading ? (
-            <div className="bg-dark rounded-lg p-6 text-center">
-              <div className="inline-block">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              </div>
-              <p className="text-gray-400 mt-3">Preparing your license...</p>
-            </div>
-          ) : (
-            <div className="bg-dark rounded-lg p-6 border border-gray-700">
-              <p className="text-gray-400 text-sm mb-3">Session ID: {sessionId || 'N/A'}</p>
-              <p className="text-gray-500 text-xs">
-                Your license key will be delivered shortly. If you don't receive it, please check your spam folder or contact us.
-              </p>
-            </div>
-          )}
+          {/* Product */}
+          <div className="footer-col">
+            <h4>Product</h4>
+            <ul>
+              <li><a href="https://blurkit.app/#features">Features</a></li>
+              <li><a href="https://blurkit.app/#pricing">Pricing</a></li>
+              <li><a href="https://blurkit.app/#faq">FAQ</a></li>
+              <li><a href="https://chromewebstore.google.com/detail/blurkit/mgkbgadmjmmokapanfiopeaddiebdjmn">Download</a></li>
+            </ul>
+          </div>
+
+          {/* Extension */}
+          <div className="footer-col">
+            <h4>Browser Extension</h4>
+            <ul>
+              <li><a href="https://chromewebstore.google.com/detail/blurkit/mgkbgadmjmmokapanfiopeaddiebdjmn">Chrome</a></li>
+              <li><a href="https://chromewebstore.google.com/detail/blurkit/mgkbgadmjmmokapanfiopeaddiebdjmn">Edge</a></li>
+              <li><a href="https://chromewebstore.google.com/detail/blurkit/mgkbgadmjmmokapanfiopeaddiebdjmn">Firefox</a></li>
+              <li><a href="https://chromewebstore.google.com/detail/blurkit/mgkbgadmjmmokapanfiopeaddiebdjmn">Brave</a></li>
+            </ul>
+          </div>
+
+          {/* Help */}
+          <div className="footer-col">
+            <h4>Help</h4>
+            <ul>
+              <li><a href="mailto:survextanmay@gmail.com">Contact us</a></li>
+              <li><a href="https://blurkit.app/privacy">Privacy policy</a></li>
+              <li><a href="https://blurkit.app/terms">Terms of Service</a></li>
+            </ul>
+          </div>
+
         </div>
 
-        <div className="bg-dark-100 rounded-lg border border-gray-800 p-8 mb-8">
-          <h2 className="text-2xl font-bold text-white mb-4">How to Activate</h2>
-          <ol className="space-y-4">
-            <li className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-dark flex items-center justify-center font-bold">
-                1
-              </div>
-              <div>
-                <p className="font-semibold text-white">Install BlurKit</p>
-                <p className="text-gray-400 text-sm">
-                  Get BlurKit from the{' '}
-                  <a
-                    href={siteConfig.chromeStoreUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:text-primary-400"
-                  >
-                    Chrome Web Store
-                  </a>
-                </p>
-              </div>
-            </li>
-            <li className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-dark flex items-center justify-center font-bold">
-                2
-              </div>
-              <div>
-                <p className="font-semibold text-white">Click the BlurKit Icon</p>
-                <p className="text-gray-400 text-sm">
-                  Click the BlurKit icon in your Chrome toolbar to open the popup
-                </p>
-              </div>
-            </li>
-            <li className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-dark flex items-center justify-center font-bold">
-                3
-              </div>
-              <div>
-                <p className="font-semibold text-white">Go to Settings</p>
-                <p className="text-gray-400 text-sm">
-                  Click the settings icon and go to the "About" tab
-                </p>
-              </div>
-            </li>
-            <li className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-dark flex items-center justify-center font-bold">
-                4
-              </div>
-              <div>
-                <p className="font-semibold text-white">Enter License Key</p>
-                <p className="text-gray-400 text-sm">
-                  Paste your license key and click "Activate"
-                </p>
-              </div>
-            </li>
-            <li className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-dark flex items-center justify-center font-bold">
-                5
-              </div>
-              <div>
-                <p className="font-semibold text-white">Enjoy Pro Features!</p>
-                <p className="text-gray-400 text-sm">
-                  All features are now unlocked. Happy blurring!
-                </p>
-              </div>
-            </li>
-          </ol>
+        <div className="footer-bottom">
+          <div>&copy; 2026 BlurKit. All rights reserved.</div>
+          <div>Built with privacy in mind</div>
         </div>
-
-        <div className="bg-primary/10 border border-primary/30 rounded-lg p-8 mb-8">
-          <h3 className="text-xl font-bold text-white mb-3">What's Included in Pro</h3>
-          <ul className="space-y-2 mb-6">
-            {[
-              'All 11 PII detection types',
-              'One-click Demo Mode',
-              'All 3 blur styles',
-              'Custom keywords & regex patterns',
-              'Tab title blurring',
-              'Priority email support',
-            ].map((feature) => (
-              <li key={feature} className="flex items-center gap-2">
-                <span className="text-primary font-bold">✓</span>
-                <span className="text-gray-300">{feature}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <a
-            href={siteConfig.chromeStoreUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-base font-semibold text-dark hover:bg-primary-400 transition-colors"
-          >
-            Download BlurKit
-          </a>
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center rounded-lg border-2 border-primary px-6 py-3 text-base font-semibold text-primary hover:bg-primary/10 transition-colors"
-          >
-            Back to Home
-          </Link>
-        </div>
-
-        <div className="mt-8 text-center">
-          <p className="text-gray-400 mb-2">Need help?</p>
-          <a
-            href={`mailto:${siteConfig.support}`}
-            className="text-primary hover:text-primary-400 font-semibold"
-          >
-            Contact support
-          </a>
-        </div>
-      </div>
+      </footer>
     </div>
-  )
-}
-
-export default function SuccessPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-b from-dark via-dark to-dark-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-white">Loading...</p>
-        </div>
-      </div>
-    }>
-      <SuccessContent />
-    </Suspense>
-  )
+  );
 }
