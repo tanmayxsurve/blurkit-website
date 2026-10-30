@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDodoClient } from '@/lib/dodo-payments'
-import { generateLicenseKey } from '@/lib/license-generator'
-import { sendLicenseEmail } from '@/lib/email'
 import { query } from '@/lib/db'
 
 export const runtime = 'edge'
@@ -88,6 +86,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create order record
+    // Dodo Payments now handles license key generation and delivery automatically
     console.log('Creating order...')
     const orderResult = await query(
       `INSERT INTO orders (dodo_session_id, email, plan_id, amount, status, completed_at)
@@ -98,36 +97,6 @@ export async function POST(req: NextRequest) {
 
     const orderId = orderResult.rows[0].id
     console.log('✓ Order created:', orderId)
-
-    // Generate license key
-    console.log('Generating license key...')
-    const licenseKey = await generateLicenseKey(email, planId)
-    console.log('✓ License key generated:', licenseKey)
-
-    // Store license key in simplified schema
-    console.log('Storing license in database...')
-    await query(
-      `INSERT INTO licenses (email, license_key, plan_id, session_id, created_at)
-       VALUES ($1, $2, $3, $4, NOW())
-       ON CONFLICT (license_key) DO NOTHING`,
-      [email, licenseKey, planId, sessionId]
-    )
-    console.log('✓ License stored')
-
-    // Send license key via email
-    console.log('Sending email to:', email)
-    const emailResult = await sendLicenseEmail({
-      email,
-      licenseKey,
-      plan: planId,
-    })
-
-    if (!emailResult.success) {
-      console.error('Failed to send email:', emailResult.error)
-      // Continue processing - license key is still stored
-    } else {
-      console.log('✓ Email sent successfully')
-    }
 
     // Mark webhook as processed
     console.log('Recording webhook event...')
@@ -140,8 +109,8 @@ export async function POST(req: NextRequest) {
     console.log('Payment processed:', {
       orderId,
       email,
-      licenseKey,
-      emailSent: emailResult.success,
+      plan: planId,
+      note: 'License key generated and sent by Dodo Payments',
     })
 
     return NextResponse.json({ received: true, success: true })

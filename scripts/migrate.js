@@ -54,6 +54,26 @@ async function runMigration() {
     console.log('✅ Device binding migration completed');
     console.log('');
 
+    // Run 002_add_device_registrations.sql
+    console.log('📄 Running: 002_add_device_registrations.sql');
+    const deviceRegistrations = readFileSync(
+      join(__dirname, '../migrations/002_add_device_registrations.sql'),
+      'utf-8'
+    );
+    await pool.query(deviceRegistrations);
+    console.log('✅ Device registrations migration completed');
+    console.log('');
+
+    // Run 003_fix_license_key_format.sql
+    console.log('📄 Running: 003_fix_license_key_format.sql');
+    const fixLicenseFormat = readFileSync(
+      join(__dirname, '../migrations/003_fix_license_key_format.sql'),
+      'utf-8'
+    );
+    await pool.query(fixLicenseFormat);
+    console.log('✅ License key format migration completed');
+    console.log('');
+
     // Verify tables exist
     console.log('🔍 Verifying tables...');
     const tablesResult = await pool.query(`
